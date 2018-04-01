@@ -73,22 +73,22 @@ MonoBehaviour:
   displayCoords: 0
   moveSpeed: 0.075
   moveDirection: {x: 1, y: 0, z: -1}
-  height: 15
-  width: 15
+  height: 10
+  width: 10
   blockOffset: 10
   blockPrefabs:
-  - {fileID: 114527165525611084, guid: 57aebb9969785477e9f2058f865e3a2e, type: 2}
-  - {fileID: 114089416458680818, guid: 253d805c8d3024cedac583b03bceb060, type: 2}
-  - {fileID: 114689072666692356, guid: 6c3ce0e17035946449946f85a3451885, type: 2}
-  - {fileID: 114715612544013778, guid: 514d6cff4d63444ddb9056eee1b5613c, type: 2}
-  - {fileID: 114360220382879762, guid: 2bf348b6db3914d5bb6dd690c5323cdb, type: 2}
+  - {fileID: 114206510730185004, guid: 88518645586254f57923c4990cc32dc4, type: 2}
+  - {fileID: 114926228474381524, guid: f4220ba7564b04c38ae99bfe88789a46, type: 2}
+  - {fileID: 114968189736319878, guid: b39133286c6f941a1b18d5e7b9a5bf78, type: 2}
+  - {fileID: 114602021245552286, guid: b494fd15c204c4593a2085e5e6705292, type: 2}
+  - {fileID: 114638403387035794, guid: 79b233288f9ad46bebcfd768803b78cf, type: 2}
   - {fileID: 114029886766771382, guid: 3637272bf341a4cbea596ea0905f9406, type: 2}
   - {fileID: 114680751122185110, guid: 0c34a820ef0114866ab3334f0cb36a32, type: 2}
   labelPrefab: {fileID: 114004841143703628, guid: 9d8bcd1182da44e6982e70e604a620e9,
     type: 2}
-  residentialChance: 70
-  cityUpgradeChance: 80
-  mountainChance: 2
+  residentialChance: 75
+  cityUpgradeChance: 100
+  mountainChance: 5
   parkChance: 100
   shoppingChance: 10
 --- !u!114 &114773899167161070

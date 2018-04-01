@@ -111,6 +111,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 5
   color: {r: 0, g: 0.43382353, b: 0.020943241, a: 0}
+  useColor: 1
   index: 0
   north: {fileID: 0}
   east: {fileID: 0}

@@ -68,7 +68,7 @@ public class Neighborhood : MonoBehaviour
             DestroyNeighborhood();
             CreateNeighborhood();
         }
-        // transform.Translate(moveDirection * moveSpeed);
+        transform.Translate(moveDirection * moveSpeed);
     }
 
     public void CreateNeighborhood()
@@ -125,7 +125,7 @@ public class Neighborhood : MonoBehaviour
             Block neighbor = GetBlockInDirection(i, x, z);
             if (!neighbor)
             {
-                break;
+                continue;
             }
             if (neighbor.type == BlockType.forest)
             {
@@ -174,14 +174,11 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                Block northBlock = GetBlockInDirection(0, x, z);
-                Block eastBlock = GetBlockInDirection(1, x, z);
-                Block southBlock = GetBlockInDirection(2, x, z);
-                Block westBlock = GetBlockInDirection(3, x, z);
-                bool northIsCity = northBlock ? northBlock.type == BlockType.city : false;
-                bool eastIsCity = eastBlock ? eastBlock.type == BlockType.city : false;
-                bool southIsCity = southBlock ? southBlock.type == BlockType.city : false;
-                bool westIsCity = westBlock ? westBlock.type == BlockType.city : false;
+                Block block = GetBlockAtCoords(x, z);
+                bool northIsCity = block.north ? block.north.type == BlockType.city : false;
+                bool eastIsCity = block.east ? block.east.type == BlockType.city : false;
+                bool southIsCity = block.south ? block.south.type == BlockType.city : false;
+                bool westIsCity = block.west ? block.west.type == BlockType.city : false;
                 if (northIsCity && eastIsCity && southIsCity && westIsCity && UnityEngine.Random.value * 100 < parkChance){
                     ReplaceBlock(3, x, z);
                 }
@@ -221,13 +218,10 @@ public class Neighborhood : MonoBehaviour
                         citySeen = true;
                     }
                 }
-                // Debug.Log(x+","+z+"CitySeen:"+citySeen+";"+"ResidentialSeen"+residentialSeen);
-                // Debug.Log(northIsResidential.ToString()+eastIsResidential.ToString()+southIsResidential.ToString()+westIsResidential.ToString());
                 if (
                         northIsResidential && eastIsResidential && southIsResidential && westIsResidential
                         && residentialSeen && citySeen
                         && UnityEngine.Random.value * 100 < shoppingChance){
-                    Debug.Log("PlaceShopping");
                     ReplaceBlock(5, x, z);
                 }
             }
@@ -303,7 +297,7 @@ public class Neighborhood : MonoBehaviour
 
     public void CalculateNeighbors(int x, int z){
         Block block = GetBlockAtCoords(x, z);
-        if (block){
+        if (!block){
             return;
         }
         Block northBlock = GetBlockInDirection(0, x, z);
@@ -319,7 +313,8 @@ public class Neighborhood : MonoBehaviour
 
     public Block GetBlockAtCoords(int x, int z){
         int index = GetIndex(x, z);
-        if (index > blocks.Length - 1){
+        Debug.Log(index);
+        if (index > blocks.Length - 1 || index < 0){
             return null;
         }
         Block block = blocks[index];

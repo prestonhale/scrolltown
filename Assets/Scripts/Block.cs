@@ -18,6 +18,7 @@ public class Block : MonoBehaviour {
 	public BlockType type;
 	public Color color;
 
+	public bool useColor;
 	public int index;
 	public Block north;
 	public Block east;
@@ -25,7 +26,9 @@ public class Block : MonoBehaviour {
 	public Block west;
 
 	public void Awake(){
-		GetComponent<Renderer>().material.color=color;
+		if (useColor){
+			GetComponent<Renderer>().material.color=color;
+		}
 	}
 
 	public override string ToString(){
