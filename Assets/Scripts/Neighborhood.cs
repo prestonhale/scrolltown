@@ -42,11 +42,17 @@ public class Neighborhood : MonoBehaviour
     private Block[] blocks;
     private Canvas canvas;
     private System.Random random;
+    private float radius;
+
+    public Vector3 centerPoint {
+        get { return new Vector3(transform.position.x + radius, 0, transform.position.z + radius);}
+    }
 
     public void Awake()
     {
         random = new System.Random();
         blocks = new Block[height * width];
+        radius = height/2 * blockOffset;
 
         if (displayCoords){
             canvas = GetComponentInChildren<Canvas>();
@@ -313,7 +319,6 @@ public class Neighborhood : MonoBehaviour
 
     public Block GetBlockAtCoords(int x, int z){
         int index = GetIndex(x, z);
-        Debug.Log(index);
         if (index > blocks.Length - 1 || index < 0){
             return null;
         }

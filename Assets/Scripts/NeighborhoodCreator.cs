@@ -2,45 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class NeighborhoodShape {
+	public Neighborhood center;
+	public Neighborhood top;
+	public Neighborhood left;
+
+	public NeighborhoodShape(Neighborhood center, Neighborhood top, Neighborhood left){
+		this.center = center;
+		this.top = top;
+		this.left = left;
+	}
+}
+
 public class NeighborhoodCreator : MonoBehaviour {
 
-	public float translationSpeed;
-	public Vector3 translationDirection;
 	public GameObject neighborhoodPrefab;
-	public float tempTimeToNewNeighborhood;
-	public List<GameObject> neighborhoods;
+	public float cameraBuffer;
 
-	private float lastSpawnTime;
-	private GameObject mostRecentNeighborhood;
-	private GameObject bottomBound;
+	private Camera camera;
+	private NeighborhoodShape currentShape;
+	private NeighborhoodShape oldShape;
+	private NeighborhoodShape mediumShape;
+	private float totalOffset;
+	private float radius;
 
 	void Start() {
-		lastSpawnTime = Time.time + tempTimeToNewNeighborhood;
-		mostRecentNeighborhood = neighborhoods[neighborhoods.Count-1];
-		bottomBound = transform.GetChild(0).gameObject;
+		camera = Camera.main;
+		// We could create a separate height and width offset but lets keep it simple
+		Neighborhood neighborhood = neighborhoodPrefab.GetComponent<Neighborhood>();
+		totalOffset = neighborhood.blockOffset * neighborhood.height;
+		Debug.Log(totalOffset);
+		radius = totalOffset/2;
+		currentShape = SpawnNeighborhoodShape(0f + neighborhood.blockOffset/2, 0f + neighborhood.blockOffset/2);
+		camera.transform.position = new Vector3(
+			currentShape.center.centerPoint.x + radius,
+			camera.transform.position.y,
+		 	currentShape.center.centerPoint.z - radius);
 	}
 
 	void Update () {
-		bool spawnNewNeighborhood = false;
-		// TODO: A lot of this could be functions on a neighbrohood object
-		for (int i = 0; i < neighborhoods.Count; i++){
-			GameObject neighborhood = neighborhoods[i];
-            neighborhood.transform.Translate(translationDirection * translationSpeed);
-
-			if (neighborhood.transform.position.x < bottomBound.transform.position.x && neighborhood.transform.position.z > bottomBound.transform.position.z){
-				spawnNewNeighborhood = true;
-				neighborhoods.Remove(neighborhood);
-				Destroy(neighborhood);
+		// TODO: There's probably something better to check here
+		if (currentShape.center.centerPoint.x > camera.transform.position.x){
+			if (mediumShape != null){
+				oldShape = mediumShape;
+			}
+			mediumShape = currentShape;
+			Vector3 currentCenter = currentShape.center.centerPoint;
+			currentShape = SpawnNeighborhoodShape(currentCenter.x - totalOffset, currentCenter.z + totalOffset);
+			if (oldShape != null){
+				Destroy(oldShape.center.gameObject);
+				Destroy(oldShape.top.gameObject);
+				Destroy(oldShape.left.gameObject);
 			}
 		}
-
-		if (spawnNewNeighborhood){
-			Transform nextSpawnPoint = mostRecentNeighborhood.transform.GetChild(0);
-			GameObject newNeighborhood = (GameObject)Instantiate(neighborhoodPrefab, nextSpawnPoint.position, Quaternion.identity);
-			neighborhoods.Add(newNeighborhood);
-			mostRecentNeighborhood = newNeighborhood;
-			lastSpawnTime = Time.time;
-		}
+		
 	}
 
+	public NeighborhoodShape SpawnNeighborhoodShape(float x, float z){
+		Neighborhood center = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
+		Neighborhood top = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
+		Neighborhood left = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
+		Debug.Log(radius);
+
+		// TODO: These are both exactly 0.5 off, I have no idea why
+		// Possibly the order that update is called in? Rounding floats?
+		// Its really weird that they're EXACTLY .5 off.
+		x = x + 0.5f;
+		z = z - 0.5f;
+		
+		center.transform.position = new Vector3(x - radius, 0f, z - radius);
+		top.transform.position = new Vector3(x - radius, 0f, z + totalOffset - radius);
+		left.transform.position = new Vector3(x - totalOffset - radius, 0f, z -radius);
+
+		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
+		return shape;
+	}
 }
