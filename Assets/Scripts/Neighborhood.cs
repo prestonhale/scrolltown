@@ -31,32 +31,49 @@ public class Neighborhood : MonoBehaviour
     public int height;
     public int width;
     public float blockOffset;
-    public Block[] blockPrefabs = new Block[7];
-    public float residentialChance;
-    public float cityUpgradeChance;
-    public float mountainChance;
-    public float parkChance;
-    public float shoppingChance;
+
+    [Header("Prefabs")]
     public GameObject edgeRoadPrefab;
     public Text labelPrefab;
     public GameObject cornerRoadPrefab;
+    public Block[] blockPrefabs = new Block[7];
+
+    [Header("Generation Chances")]
+    [Range(0, 100)]
+    public float residentialChance;
+    [Range(0, 100)]
+    public float cityUpgradeChance;
+    [Range(0, 100)]
+    public float mountainChance;
+    [Range(0, 100)]
+    public float parkChance;
+    [Range(0, 100)]
+    public float shoppingChance;
+    [Range(0, 9)]
+    public int requiredSmoothingNeigbors;
+    [Range(0, 7)]
+    public int smoothCount;
+    [Range(0, 10)]
+    public int maxMtnLength;
 
     private Block[] blocks;
     private Canvas canvas;
     private System.Random random;
     private float radius;
 
-    public Vector3 centerPoint {
-        get { return new Vector3(transform.position.x + radius, 0, transform.position.z + radius);}
+    public Vector3 centerPoint
+    {
+        get { return new Vector3(transform.position.x + radius, 0, transform.position.z + radius); }
     }
 
     public void Awake()
     {
         random = new System.Random();
         blocks = new Block[height * width];
-        radius = height/2 * blockOffset;
+        radius = height / 2 * blockOffset;
 
-        if (displayCoords){
+        if (displayCoords)
+        {
             canvas = GetComponentInChildren<Canvas>();
             for (int x = 0, i = 0; x < width; x++)
             {
@@ -95,6 +112,7 @@ public class Neighborhood : MonoBehaviour
                 }
             }
         }
+        IterativelySmooth(smoothCount);
         CalculateAllNeighbors();
 
         LayMountainRanges();
@@ -102,6 +120,28 @@ public class Neighborhood : MonoBehaviour
         PlaceParks();
         PlaceShopping();
         SetEdgeRoads();
+    }
+
+    public void IterativelySmooth(int smoothCount)
+    {
+        for (int i = 0; i < smoothCount; i++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int z = 0; z < height; z++)
+                {
+                    int urbanCount = GetSurroundingUrbanCount(x, z);
+                    if (urbanCount > requiredSmoothingNeigbors)
+                    {
+                        ReplaceBlock(4, x, z);
+                    }
+                    else if (urbanCount < requiredSmoothingNeigbors)
+                    {
+                        ReplaceBlock(1, x, z);
+                    }
+                }
+            }
+        }
     }
 
     public void LayMountainRanges()
@@ -120,14 +160,18 @@ public class Neighborhood : MonoBehaviour
                 // one in this forest clump, kill it
                 if (UnityEngine.Random.value * 100 <= mountainChance)
                 {
-                    ExtendMountain(x, z);
+                    ExtendMountain(x, z, 0);
                 }
             }
         }
     }
 
-    public void ExtendMountain(int x, int z)
+    public void ExtendMountain(int x, int z, int mtnLength)
     {
+        if (mtnLength >= maxMtnLength)
+        {
+            return;
+        }
         ReplaceBlock(2, x, z);
         for (int i = 0; i < 4; i++)
         {
@@ -140,7 +184,7 @@ public class Neighborhood : MonoBehaviour
             {
                 GridCoord neighborCoords = IndexToCoord(GetIndexInDirection(i, x, z));
                 // TODO: Extend in both directions
-				ExtendMountain(neighborCoords.x, neighborCoords.z);
+                ExtendMountain(neighborCoords.x, neighborCoords.z, mtnLength + 1);
                 break;
             }
         }
@@ -176,7 +220,8 @@ public class Neighborhood : MonoBehaviour
         }
     }
 
-    public void PlaceParks(){
+    public void PlaceParks()
+    {
         // 1. Place parks in areas completely surrounded by city
         // 2. Ensure no parks are with a 5x5 grid (centered on the park) of each other
         for (int x = 0; x < width; x++)
@@ -188,20 +233,23 @@ public class Neighborhood : MonoBehaviour
                 bool eastIsCity = block.east ? block.east.type == BlockType.city : false;
                 bool southIsCity = block.south ? block.south.type == BlockType.city : false;
                 bool westIsCity = block.west ? block.west.type == BlockType.city : false;
-                if (northIsCity && eastIsCity && southIsCity && westIsCity && UnityEngine.Random.value * 100 < parkChance){
+                if (northIsCity && eastIsCity && southIsCity && westIsCity && UnityEngine.Random.value * 100 < parkChance)
+                {
                     ReplaceBlock(3, x, z);
                 }
             }
         }
     }
 
-    public void PlaceShopping(){
+    public void PlaceShopping()
+    {
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
             {
                 int index = GetIndex(x, z);
-                if (Array.IndexOf(new BlockType[2]{BlockType.residential, BlockType.city}, blocks[index].type) == -1){
+                if (Array.IndexOf(new BlockType[2] { BlockType.residential, BlockType.city }, blocks[index].type) == -1)
+                {
                     continue;
                 }
                 bool residentialSeen = false;
@@ -218,19 +266,23 @@ public class Neighborhood : MonoBehaviour
                 bool southIsResidential = southBlock ? Array.IndexOf(urban, southBlock.type) > -1 : false;
                 bool westIsResidential = westBlock ? Array.IndexOf(urban, westBlock.type) > -1 : false;
 
-                Block[] neighbors = new Block[4]{northBlock, eastBlock, southBlock, westBlock};
-                foreach (Block neighbor in neighbors){
-                    if (neighbor && neighbor.type == BlockType.residential){
+                Block[] neighbors = new Block[4] { northBlock, eastBlock, southBlock, westBlock };
+                foreach (Block neighbor in neighbors)
+                {
+                    if (neighbor && neighbor.type == BlockType.residential)
+                    {
                         residentialSeen = true;
                     }
-                    if (neighbor && neighbor.type == BlockType.city){
+                    if (neighbor && neighbor.type == BlockType.city)
+                    {
                         citySeen = true;
                     }
                 }
                 if (
                         northIsResidential && eastIsResidential && southIsResidential && westIsResidential
                         && residentialSeen && citySeen
-                        && UnityEngine.Random.value * 100 < shoppingChance){
+                        && UnityEngine.Random.value * 100 < shoppingChance)
+                {
                     ReplaceBlock(5, x, z);
                 }
             }
@@ -260,7 +312,7 @@ public class Neighborhood : MonoBehaviour
         }
         else if (direction == 2)
         {
-            newIndex = curIndex -1;
+            newIndex = curIndex - 1;
         }
         else
         {
@@ -296,17 +348,21 @@ public class Neighborhood : MonoBehaviour
         }
     }
 
-    public void CalculateAllNeighbors(){
-        foreach (Block block in blocks){
+    public void CalculateAllNeighbors()
+    {
+        foreach (Block block in blocks)
+        {
             int index = Array.IndexOf(blocks, block);
             GridCoord coords = IndexToCoord(index);
             CalculateNeighbors(coords.x, coords.z);
         }
     }
 
-    public void CalculateNeighbors(int x, int z){
+    public void CalculateNeighbors(int x, int z)
+    {
         Block block = GetBlockAtCoords(x, z);
-        if (!block){
+        if (!block)
+        {
             return;
         }
         Block northBlock = GetBlockInDirection(0, x, z);
@@ -320,9 +376,11 @@ public class Neighborhood : MonoBehaviour
         block.west = westBlock;
     }
 
-    public Block GetBlockAtCoords(int x, int z){
+    public Block GetBlockAtCoords(int x, int z)
+    {
         int index = GetIndex(x, z);
-        if (index > blocks.Length - 1 || index < 0){
+        if (index > blocks.Length - 1 || index < 0)
+        {
             return null;
         }
         Block block = blocks[index];
@@ -336,7 +394,7 @@ public class Neighborhood : MonoBehaviour
         Block block = blocks[i] = Instantiate<Block>(blockPrefab);
         block.transform.SetParent(transform, false);
         block.transform.position = newPosition;
-		block.index = GetIndex(x, z);
+        block.index = GetIndex(x, z);
     }
 
     public void ReplaceBlock(int blockIndex, int x, int z)
@@ -344,15 +402,44 @@ public class Neighborhood : MonoBehaviour
         int index = GetIndex(x, z);
         Block oldBlock = blocks[index];
         Vector3 oldBlockPosition = oldBlock.transform.position;
-		CreateBlock(blockIndex, x, z, index);
+        CreateBlock(blockIndex, x, z, index);
 
         Destroy(oldBlock.gameObject);
 
         CalculateNeighbors(x, z);
-        CalculateNeighbors(x, z+1);
-        CalculateNeighbors(x+1, z);
-        CalculateNeighbors(x, z-1);
-        CalculateNeighbors(x-1, z);
+        CalculateNeighbors(x, z + 1);
+        CalculateNeighbors(x + 1, z);
+        CalculateNeighbors(x, z - 1);
+        CalculateNeighbors(x - 1, z);
+    }
+
+    public int GetSurroundingUrbanCount(int x, int z)
+    {
+        // The minus and plus ones in the loop here allow us to search
+        // in a 3x3 sqr around the selected tile
+        int urbanCount = 0;
+        BlockType[] rural = new BlockType[2] { BlockType.forest, BlockType.mountain };
+        for (int neighborX = x - 1; neighborX <= x + 1; neighborX++)
+        {
+            for (int neighborZ = z - 1; neighborZ <= z + 1; neighborZ++)
+            {
+                if (neighborX != x || neighborX != z)
+                {
+                    // Neighbor at coords is NOT rural, or is an edge
+                    Block neighbor = GetBlockAtCoords(neighborX, neighborZ);
+                    if (!neighbor)
+                    {
+                        urbanCount += 1;
+                        continue;
+                    }
+                    if (Array.IndexOf(rural, neighbor.type) == -1)
+                    {
+                        urbanCount += 1;
+                    }
+                }
+            }
+        }
+        return urbanCount;
     }
 
 
@@ -365,13 +452,14 @@ public class Neighborhood : MonoBehaviour
         text.text = x.ToString() + "," + z.ToString();
     }
 
-    public void SetEdgeRoads(){
+    public void SetEdgeRoads()
+    {
         float blockOffset = 4.75f;
-        BlockType[] rural = new BlockType[2]{BlockType.forest, BlockType.mountain};
+        BlockType[] rural = new BlockType[2] { BlockType.forest, BlockType.mountain };
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
-            {   
+            {
                 bool northRural = false;
                 bool eastRural = false;
                 bool southRural = false;
@@ -379,29 +467,37 @@ public class Neighborhood : MonoBehaviour
                 Block thisBlock = GetBlockAtCoords(x, z);
 
                 // Check rural
-                if (Array.IndexOf(rural, thisBlock.type) > -1){
-                    for (int i = 0; i < 4; i++){
+                if (Array.IndexOf(rural, thisBlock.type) > -1)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
                         Block neighbor = GetBlockInDirection(i, x, z);
-                        if (!neighbor || Array.IndexOf(rural, neighbor.type) == -1){
+                        if (!neighbor || Array.IndexOf(rural, neighbor.type) == -1)
+                        {
                             GameObject edgeRoad = Instantiate(edgeRoadPrefab, Vector3.zero, Quaternion.identity);
                             Vector3 newPosition = Vector3.zero;
 
                             // Check if neighbors are rural blocks, if they are add edge road
-                            if (i == 0){
+                            if (i == 0)
+                            {
                                 newPosition = new Vector3(0, 0.01f, 1 * blockOffset);
                             }
-                            else if (i == 1){
+                            else if (i == 1)
+                            {
                                 newPosition = new Vector3(1 * blockOffset, 0.01f, 0);
                             }
-                            else if (i == 2){
+                            else if (i == 2)
+                            {
                                 newPosition = new Vector3(0, 0.01f, -1 * blockOffset);
                             }
-                            else if (i == 3){
+                            else if (i == 3)
+                            {
                                 newPosition = new Vector3(-1 * blockOffset, 0.01f, 0);
                             }
                             edgeRoad.transform.SetParent(thisBlock.transform);
                             edgeRoad.transform.localPosition = newPosition;
-                            if (Array.IndexOf(new int[2]{0, 2}, i) > -1){
+                            if (Array.IndexOf(new int[2] { 0, 2 }, i) > -1)
+                            {
                                 edgeRoad.transform.Rotate(new Vector3(0, 90, 0));
                             }
                         }
@@ -409,44 +505,55 @@ public class Neighborhood : MonoBehaviour
                 }
 
                 // Check residential
-                if (Array.IndexOf(rural, thisBlock.type) == -1){
-                    for (int i = 0; i < 4; i++){
+                if (Array.IndexOf(rural, thisBlock.type) == -1)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
                         Block neighbor = GetBlockInDirection(i, x, z);
-                        if (!neighbor || Array.IndexOf(rural, neighbor.type) > -1){
+                        if (!neighbor || Array.IndexOf(rural, neighbor.type) > -1)
+                        {
 
                             // Check if neighbors are rural blocks, if they are add edge road
-                            if (i == 0){
+                            if (i == 0)
+                            {
                                 northRural = true;
                             }
-                            else if (i == 1){
+                            else if (i == 1)
+                            {
                                 eastRural = true;
                             }
-                            else if (i == 2){
+                            else if (i == 2)
+                            {
                                 southRural = true;
                             }
-                            else if (i == 3){
+                            else if (i == 3)
+                            {
                                 westRural = true;
                             }
                         }
                     }
 
                     // Assign corner blocks to avoid jagged corner edge roads
-                    if (northRural && eastRural){
+                    if (northRural && eastRural)
+                    {
                         GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
                         cornerRoad.transform.parent = thisBlock.transform;
                         cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, 5.25f);
                     }
-                    if (eastRural && southRural){
+                    if (eastRural && southRural)
+                    {
                         GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
                         cornerRoad.transform.parent = thisBlock.transform;
                         cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, -5.25f);
                     }
-                    if (southRural && westRural){
+                    if (southRural && westRural)
+                    {
                         GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
                         cornerRoad.transform.parent = thisBlock.transform;
                         cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, -5.25f);
                     }
-                    if (westRural && northRural){
+                    if (westRural && northRural)
+                    {
                         GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
                         cornerRoad.transform.parent = thisBlock.transform;
                         cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, 5.25f);

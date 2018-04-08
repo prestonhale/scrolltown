@@ -76,6 +76,12 @@ MonoBehaviour:
   height: 6
   width: 6
   blockOffset: 10
+  edgeRoadPrefab: {fileID: 1885312037724396, guid: b54ae430f7f7444719c4960eda3c36ca,
+    type: 2}
+  labelPrefab: {fileID: 114004841143703628, guid: 9d8bcd1182da44e6982e70e604a620e9,
+    type: 2}
+  cornerRoadPrefab: {fileID: 1542641266210450, guid: 16d82106adde4452f8b466e68be005fa,
+    type: 2}
   blockPrefabs:
   - {fileID: 114206510730185004, guid: 88518645586254f57923c4990cc32dc4, type: 2}
   - {fileID: 114926228474381524, guid: f4220ba7564b04c38ae99bfe88789a46, type: 2}
@@ -84,15 +90,14 @@ MonoBehaviour:
   - {fileID: 114638403387035794, guid: 79b233288f9ad46bebcfd768803b78cf, type: 2}
   - {fileID: 114117468485193904, guid: 8f0b235d5c3f2487d926b16478ff1e6a, type: 2}
   - {fileID: 114680751122185110, guid: 0c34a820ef0114866ab3334f0cb36a32, type: 2}
-  labelPrefab: {fileID: 114004841143703628, guid: 9d8bcd1182da44e6982e70e604a620e9,
-    type: 2}
-  residentialChance: 75
-  cityUpgradeChance: 100
+  residentialChance: 50
+  cityUpgradeChance: 82
   mountainChance: 5
-  parkChance: 100
+  parkChance: 73
   shoppingChance: 35
-  edgeRoadPrefab: {fileID: 1885312037724396, guid: b54ae430f7f7444719c4960eda3c36ca,
-    type: 2}
+  requiredSmoothingNeigbors: 4
+  smoothCount: 1
+  maxMtnLength: 4
 --- !u!114 &114773899167161070
 MonoBehaviour:
   m_ObjectHideFlags: 1
