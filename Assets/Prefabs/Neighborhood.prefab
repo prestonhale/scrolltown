@@ -82,7 +82,7 @@ MonoBehaviour:
   - {fileID: 114968189736319878, guid: b39133286c6f941a1b18d5e7b9a5bf78, type: 2}
   - {fileID: 114602021245552286, guid: b494fd15c204c4593a2085e5e6705292, type: 2}
   - {fileID: 114638403387035794, guid: 79b233288f9ad46bebcfd768803b78cf, type: 2}
-  - {fileID: 114029886766771382, guid: 3637272bf341a4cbea596ea0905f9406, type: 2}
+  - {fileID: 114117468485193904, guid: 8f0b235d5c3f2487d926b16478ff1e6a, type: 2}
   - {fileID: 114680751122185110, guid: 0c34a820ef0114866ab3334f0cb36a32, type: 2}
   labelPrefab: {fileID: 114004841143703628, guid: 9d8bcd1182da44e6982e70e604a620e9,
     type: 2}
@@ -90,7 +90,9 @@ MonoBehaviour:
   cityUpgradeChance: 100
   mountainChance: 5
   parkChance: 100
-  shoppingChance: 20
+  shoppingChance: 35
+  edgeRoadPrefab: {fileID: 1885312037724396, guid: b54ae430f7f7444719c4960eda3c36ca,
+    type: 2}
 --- !u!114 &114773899167161070
 MonoBehaviour:
   m_ObjectHideFlags: 1

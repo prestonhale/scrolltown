@@ -32,12 +32,14 @@ public class Neighborhood : MonoBehaviour
     public int width;
     public float blockOffset;
     public Block[] blockPrefabs = new Block[7];
-    public Text labelPrefab;
     public float residentialChance;
     public float cityUpgradeChance;
     public float mountainChance;
     public float parkChance;
     public float shoppingChance;
+    public GameObject edgeRoadPrefab;
+    public Text labelPrefab;
+    public GameObject cornerRoadPrefab;
 
     private Block[] blocks;
     private Canvas canvas;
@@ -99,6 +101,7 @@ public class Neighborhood : MonoBehaviour
         AttemptGrowCity();
         PlaceParks();
         PlaceShopping();
+        SetEdgeRoads();
     }
 
     public void LayMountainRanges()
@@ -360,5 +363,96 @@ public class Neighborhood : MonoBehaviour
         text.name = x.ToString() + "," + z.ToString();
         text.rectTransform.localPosition = new Vector2(x * blockOffset, z * blockOffset);
         text.text = x.ToString() + "," + z.ToString();
+    }
+
+    public void SetEdgeRoads(){
+        float blockOffset = 4.75f;
+        BlockType[] rural = new BlockType[2]{BlockType.forest, BlockType.mountain};
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {   
+                bool northRural = false;
+                bool eastRural = false;
+                bool southRural = false;
+                bool westRural = false;
+                Block thisBlock = GetBlockAtCoords(x, z);
+
+                // Check rural
+                if (Array.IndexOf(rural, thisBlock.type) > -1){
+                    for (int i = 0; i < 4; i++){
+                        Block neighbor = GetBlockInDirection(i, x, z);
+                        if (!neighbor || Array.IndexOf(rural, neighbor.type) == -1){
+                            GameObject edgeRoad = Instantiate(edgeRoadPrefab, Vector3.zero, Quaternion.identity);
+                            Vector3 newPosition = Vector3.zero;
+
+                            // Check if neighbors are rural blocks, if they are add edge road
+                            if (i == 0){
+                                newPosition = new Vector3(0, 0.01f, 1 * blockOffset);
+                            }
+                            else if (i == 1){
+                                newPosition = new Vector3(1 * blockOffset, 0.01f, 0);
+                            }
+                            else if (i == 2){
+                                newPosition = new Vector3(0, 0.01f, -1 * blockOffset);
+                            }
+                            else if (i == 3){
+                                newPosition = new Vector3(-1 * blockOffset, 0.01f, 0);
+                            }
+                            edgeRoad.transform.SetParent(thisBlock.transform);
+                            edgeRoad.transform.localPosition = newPosition;
+                            if (Array.IndexOf(new int[2]{0, 2}, i) > -1){
+                                edgeRoad.transform.Rotate(new Vector3(0, 90, 0));
+                            }
+                        }
+                    }
+                }
+
+                // Check residential
+                if (Array.IndexOf(rural, thisBlock.type) == -1){
+                    for (int i = 0; i < 4; i++){
+                        Block neighbor = GetBlockInDirection(i, x, z);
+                        if (!neighbor || Array.IndexOf(rural, neighbor.type) > -1){
+
+                            // Check if neighbors are rural blocks, if they are add edge road
+                            if (i == 0){
+                                northRural = true;
+                            }
+                            else if (i == 1){
+                                eastRural = true;
+                            }
+                            else if (i == 2){
+                                southRural = true;
+                            }
+                            else if (i == 3){
+                                westRural = true;
+                            }
+                        }
+                    }
+
+                    // Assign corner blocks to avoid jagged corner edge roads
+                    if (northRural && eastRural){
+                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                        cornerRoad.transform.parent = thisBlock.transform;
+                        cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, 5.25f);
+                    }
+                    if (eastRural && southRural){
+                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                        cornerRoad.transform.parent = thisBlock.transform;
+                        cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, -5.25f);
+                    }
+                    if (southRural && westRural){
+                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                        cornerRoad.transform.parent = thisBlock.transform;
+                        cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, -5.25f);
+                    }
+                    if (westRural && northRural){
+                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                        cornerRoad.transform.parent = thisBlock.transform;
+                        cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, 5.25f);
+                    }
+                }
+            }
+        }
     }
 }

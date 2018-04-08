@@ -17,7 +17,6 @@ public class NeighborhoodShape {
 public class NeighborhoodCreator : MonoBehaviour {
 
 	public GameObject neighborhoodPrefab;
-	public float cameraBuffer;
 
 	private Camera camera;
 	private NeighborhoodShape currentShape;
@@ -28,16 +27,12 @@ public class NeighborhoodCreator : MonoBehaviour {
 
 	void Start() {
 		camera = Camera.main;
+		Screen.SetResolution(200, 200, false);
 		// We could create a separate height and width offset but lets keep it simple
 		Neighborhood neighborhood = neighborhoodPrefab.GetComponent<Neighborhood>();
 		totalOffset = neighborhood.blockOffset * neighborhood.height;
-		Debug.Log(totalOffset);
 		radius = totalOffset/2;
 		currentShape = SpawnNeighborhoodShape(0f + neighborhood.blockOffset/2, 0f + neighborhood.blockOffset/2);
-		camera.transform.position = new Vector3(
-			currentShape.center.centerPoint.x + radius,
-			camera.transform.position.y,
-		 	currentShape.center.centerPoint.z - radius);
 	}
 
 	void Update () {
