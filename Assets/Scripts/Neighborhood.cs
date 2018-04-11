@@ -326,16 +326,13 @@ public class Neighborhood : MonoBehaviour
 
     public Block GetBlockInDirection(int direction, int x, int z)
     {
-        int newIndex = GetIndexInDirection(direction, x, z);
-        if (newIndex >= 0 && newIndex < blocks.Length)
-        {
-            return blocks[newIndex];
-        }
-        else
-        {
-            return null;
-        }
-
+        int newX = 0;
+        int newZ = 0;
+        if (direction == 0) {newX = x; newZ = z + 1;}
+        else if (direction == 1) {newX = x + 1; newZ = z;}
+        else if (direction == 2) {newX = x; newZ = z - 1;}
+        else if (direction == 3) {newX = x - 1; newZ = z;}
+        return GetBlockAtCoords(newX, newZ);
     }
 
     public int GetIndex(int x, int z)
@@ -389,7 +386,7 @@ public class Neighborhood : MonoBehaviour
         if (z < 0){
             Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(2, this);
             if (!borderingNeighborhood) return null;
-            return borderingNeighborhood.GetBlockAtCoords(x, 0);
+            return borderingNeighborhood.GetBlockAtCoords(x, height -1);
         }
         if (x > width - 1){
             Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(1, this);
@@ -399,7 +396,7 @@ public class Neighborhood : MonoBehaviour
         if (z > height - 1){
             Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(0, this);
             if (!borderingNeighborhood) return null;
-            return borderingNeighborhood.GetBlockAtCoords(0, height - 1);
+            return borderingNeighborhood.GetBlockAtCoords(x, 0);
         }
         int index = GetIndex(x, z);
         Block block = blocks[index];
