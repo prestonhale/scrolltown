@@ -55,6 +55,7 @@ public class Neighborhood : MonoBehaviour
     public int smoothCount;
     [Range(0, 10)]
     public int maxMtnLength;
+    public NeighborhoodShape parentShape;
 
     private Block[] blocks;
     private Canvas canvas;
@@ -83,7 +84,6 @@ public class Neighborhood : MonoBehaviour
                 }
             }
         }
-        CreateNeighborhood();
     }
 
     public void Update()
@@ -93,7 +93,10 @@ public class Neighborhood : MonoBehaviour
             DestroyNeighborhood();
             CreateNeighborhood();
         }
-        transform.Translate(moveDirection * moveSpeed);
+        // Frame debugger doesn't work unless you check this or the timescale
+        if (!UnityEditor.EditorApplication.isPaused){
+            transform.Translate(moveDirection * moveSpeed);
+        }
     }
 
     public void CreateNeighborhood()
@@ -378,11 +381,27 @@ public class Neighborhood : MonoBehaviour
 
     public Block GetBlockAtCoords(int x, int z)
     {
-        int index = GetIndex(x, z);
-        if (index > blocks.Length - 1 || index < 0)
-        {
-            return null;
+        if (x < 0){
+            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(3, this);
+            if (!borderingNeighborhood) return null;
+            return borderingNeighborhood.GetBlockAtCoords(width - 1, z);
         }
+        if (z < 0){
+            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(2, this);
+            if (!borderingNeighborhood) return null;
+            return borderingNeighborhood.GetBlockAtCoords(x, 0);
+        }
+        if (x > width - 1){
+            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(1, this);
+            if (!borderingNeighborhood) return null;
+            return borderingNeighborhood.GetBlockAtCoords(0, z);
+        }
+        if (z > height - 1){
+            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(0, this);
+            if (!borderingNeighborhood) return null;
+            return borderingNeighborhood.GetBlockAtCoords(0, height - 1);
+        }
+        int index = GetIndex(x, z);
         Block block = blocks[index];
         return block;
     }

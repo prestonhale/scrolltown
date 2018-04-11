@@ -6,11 +6,45 @@ public class NeighborhoodShape {
 	public Neighborhood center;
 	public Neighborhood top;
 	public Neighborhood left;
+	public int order;
 
 	public NeighborhoodShape(Neighborhood center, Neighborhood top, Neighborhood left){
 		this.center = center;
+		center.parentShape = this;
 		this.top = top;
+		top.parentShape = this;
 		this.left = left;
+		left.parentShape = this;
+	}
+
+	public void CreateAll(){
+		center.CreateNeighborhood();
+		top.CreateNeighborhood();
+		left.CreateNeighborhood();
+	}
+
+	public Neighborhood GetNeighborhoodInDirection(int direction, Neighborhood neighborhood){
+		if (neighborhood == center){
+			if (direction == 3){  // West
+				return left;
+			}
+			else if (direction == 0){  // North
+				return top;
+			}
+			return null;
+		}
+		else if (neighborhood == top){
+			if (direction == 2){  // South
+				return center;
+			}
+			return null;
+		}
+		else if (neighborhood == left){
+			if (direction == 1){  // East
+				return center;
+			}
+		}
+		return null;
 	}
 }
 
@@ -26,6 +60,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 	private float radius;
 
 	void Start() {
+		Physics.autoSimulation = false;
 		camera = Camera.main;
 		Screen.SetResolution(200, 200, false);
 		// We could create a separate height and width offset but lets keep it simple
@@ -40,10 +75,13 @@ public class NeighborhoodCreator : MonoBehaviour {
 		if (currentShape.center.centerPoint.x > camera.transform.position.x){
 			if (mediumShape != null){
 				oldShape = mediumShape;
+				oldShape.order = 2;
 			}
 			mediumShape = currentShape;
+			mediumShape.order = 1;
 			Vector3 currentCenter = currentShape.center.centerPoint;
 			currentShape = SpawnNeighborhoodShape(currentCenter.x - totalOffset, currentCenter.z + totalOffset);
+			currentShape.order = 0;
 			if (oldShape != null){
 				Destroy(oldShape.center.gameObject);
 				Destroy(oldShape.top.gameObject);
@@ -65,11 +103,13 @@ public class NeighborhoodCreator : MonoBehaviour {
 		x = x + 0.5f;
 		z = z - 0.5f;
 		
+		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
+		shape.CreateAll();
+		
 		center.transform.position = new Vector3(x - radius, 0f, z - radius);
 		top.transform.position = new Vector3(x - radius, 0f, z + totalOffset - radius);
 		left.transform.position = new Vector3(x - totalOffset - radius, 0f, z -radius);
 
-		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
 		return shape;
 	}
 }
