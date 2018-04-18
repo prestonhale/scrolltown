@@ -3063,6 +3063,7 @@ MonoBehaviour:
   east: {fileID: 0}
   south: {fileID: 0}
   west: {fileID: 0}
+  basePlane: {fileID: 1022811408538352}
 --- !u!136 &136193484103155818
 CapsuleCollider:
   m_ObjectHideFlags: 1

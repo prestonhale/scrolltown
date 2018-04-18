@@ -38,6 +38,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4040037657909020}
   - component: {fileID: 114182130216054636}
+  - component: {fileID: 114594616316686370}
   m_Layer: 0
   m_Name: Neighborhood
   m_TagString: Untagged
@@ -90,7 +91,7 @@ MonoBehaviour:
   - {fileID: 114638403387035794, guid: 79b233288f9ad46bebcfd768803b78cf, type: 2}
   - {fileID: 114117468485193904, guid: 8f0b235d5c3f2487d926b16478ff1e6a, type: 2}
   - {fileID: 114680751122185110, guid: 0c34a820ef0114866ab3334f0cb36a32, type: 2}
-  residentialChance: 50
+  residentialChance: 42
   cityUpgradeChance: 82
   mountainChance: 5
   parkChance: 73
@@ -98,6 +99,19 @@ MonoBehaviour:
   requiredSmoothingNeigbors: 4
   smoothCount: 1
   maxMtnLength: 4
+--- !u!114 &114594616316686370
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1849455409729550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c610429573224156b0ec34f2904d5f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carPrefab: {fileID: 1864187505440984, guid: 19502f18b289445c09aa1282ead06279, type: 2}
+  carOffset: 0.5
 --- !u!114 &114773899167161070
 MonoBehaviour:
   m_ObjectHideFlags: 1

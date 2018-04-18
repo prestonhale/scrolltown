@@ -123,6 +123,7 @@ public class Neighborhood : MonoBehaviour
         PlaceParks();
         PlaceShopping();
         SetEdgeRoads();
+        GetComponent<CarSpawner>().StartSpawning();
     }
 
     public void IterativelySmooth(int smoothCount)
@@ -577,5 +578,34 @@ public class Neighborhood : MonoBehaviour
                 }
             }
         }
+    }
+
+    public Block[] GetEdgeBlocks(int direction){
+        Block[] edgeBlocks = new Block[width];
+        if (direction == 0){
+            edgeBlocks = new Block[width];
+            for (int i = 0; i < width; i++){
+                edgeBlocks[i] = GetBlockAtCoords(i, height-1);
+            }
+        }
+        else if (direction == 1){
+            edgeBlocks = new Block[height];
+            for (int i = 0; i < height; i++){
+                edgeBlocks[i] = GetBlockAtCoords(width-1, i);
+            }
+        }
+        else if (direction == 2){
+            edgeBlocks = new Block[width];
+            for (int i = 0; i < width; i++){
+                edgeBlocks[i] = GetBlockAtCoords(i, 0);
+            }
+        }
+        else if (direction == 3){
+            edgeBlocks = new Block[height];
+            for (int i = 0; i < height; i++){
+                edgeBlocks[i] = GetBlockAtCoords(0, i);
+            }
+        }
+        return edgeBlocks;
     }
 }

@@ -6,7 +6,7 @@ public class NeighborhoodShape {
 	public Neighborhood center;
 	public Neighborhood top;
 	public Neighborhood left;
-	public int order;
+	public NeighborhoodShape previousShape;
 
 	public NeighborhoodShape(Neighborhood center, Neighborhood top, Neighborhood left){
 		this.center = center;
@@ -27,6 +27,16 @@ public class NeighborhoodShape {
 		if (neighborhood == center){
 			if (direction == 3){  // West
 				return left;
+			}
+			if (direction == 2){  // South
+				if (previousShape != null){
+					return previousShape.left;
+				}
+			}
+			if (direction == 1){  // East
+				if (previousShape != null){
+					return previousShape.top;
+				}
 			}
 			else if (direction == 0){  // North
 				return top;
@@ -67,7 +77,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 		Neighborhood neighborhood = neighborhoodPrefab.GetComponent<Neighborhood>();
 		totalOffset = neighborhood.blockOffset * neighborhood.height;
 		radius = totalOffset/2;
-		currentShape = SpawnNeighborhoodShape(0f + neighborhood.blockOffset/2, 0f + neighborhood.blockOffset/2);
+		currentShape = SpawnNeighborhoodShape(0f + neighborhood.blockOffset/2, 0f + neighborhood.blockOffset/2, null);
 	}
 
 	void Update () {
@@ -75,13 +85,12 @@ public class NeighborhoodCreator : MonoBehaviour {
 		if (currentShape.center.centerPoint.x > camera.transform.position.x){
 			if (mediumShape != null){
 				oldShape = mediumShape;
-				oldShape.order = 2;
 			}
 			mediumShape = currentShape;
-			mediumShape.order = 1;
 			Vector3 currentCenter = currentShape.center.centerPoint;
-			currentShape = SpawnNeighborhoodShape(currentCenter.x - totalOffset, currentCenter.z + totalOffset);
-			currentShape.order = 0;
+			float spawnX = currentCenter.x - totalOffset;
+			float spawnZ = currentCenter.z + totalOffset;
+			currentShape = SpawnNeighborhoodShape(spawnX, spawnZ, mediumShape);
 			if (oldShape != null){
 				Destroy(oldShape.center.gameObject);
 				Destroy(oldShape.top.gameObject);
@@ -91,11 +100,10 @@ public class NeighborhoodCreator : MonoBehaviour {
 		
 	}
 
-	public NeighborhoodShape SpawnNeighborhoodShape(float x, float z){
+	public NeighborhoodShape SpawnNeighborhoodShape(float x, float z, NeighborhoodShape prevShape){
 		Neighborhood center = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
 		Neighborhood top = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
 		Neighborhood left = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
-		Debug.Log(radius);
 
 		// TODO: These are both exactly 0.5 off, I have no idea why
 		// Possibly the order that update is called in? Rounding floats?
@@ -104,6 +112,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 		z = z - 0.5f;
 		
 		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
+		shape.previousShape = prevShape;
 		shape.CreateAll();
 		
 		center.transform.position = new Vector3(x - radius, 0f, z - radius);

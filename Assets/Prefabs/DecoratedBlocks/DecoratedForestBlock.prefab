@@ -4627,6 +4627,7 @@ MonoBehaviour:
   east: {fileID: 0}
   south: {fileID: 0}
   west: {fileID: 0}
+  basePlane: {fileID: 1504068703641322}
 --- !u!135 &135459511639357866
 SphereCollider:
   m_ObjectHideFlags: 1

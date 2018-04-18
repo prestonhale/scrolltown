@@ -24,6 +24,7 @@ public class Block : MonoBehaviour {
 	public Block east;
 	public Block south;
 	public Block west;
+	public GameObject basePlane;
 
 	public void Awake(){
 		if (useColor){
