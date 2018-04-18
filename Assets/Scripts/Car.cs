@@ -13,9 +13,19 @@ public class Car : MonoBehaviour {
 	}
 
 	void Update () {
-		Vector3 translation = Vector3.zero;
 		float delta = speed * Time.deltaTime;
-		translation = new Vector3(delta, 0f, 0f);
+		Move(delta);
+	}
+
+	public void SimulateFrames(int frames){
+		float defaultTimeScale = 0.05f;
+		float distancePerFrame = speed * defaultTimeScale;
+		float movement = frames * distancePerFrame; 
+		Move(movement);
+	}
+
+	public void Move(float delta){
+		Vector3 translation = new Vector3(delta, 0f, 0f);
 		transform.Translate(translation);
 	}
 

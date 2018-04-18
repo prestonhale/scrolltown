@@ -8,7 +8,8 @@ public class CarSpawner : MonoBehaviour {
     // TODO: Dynamic
     public float carOffset = 0.5f;
     public float spawnTime = 2;
-    public float verticalSpawnOffset=1;
+    public float verticalSpawnOffset=1.2f;
+    public float simulationSteps=2;
     
     private List<Car> cars;
     private Neighborhood neighborhood;
@@ -19,6 +20,7 @@ public class CarSpawner : MonoBehaviour {
     }
 
     public void StartSpawning(){
+        SimulateAdvancement();
         StartCoroutine(StartSpawnRoutines());
     }
 
@@ -56,6 +58,21 @@ public class CarSpawner : MonoBehaviour {
                 cars.Add(carGameObject.GetComponent<Car>());
             }
             yield return new WaitForSeconds(spawnTime);
+        }
+    }
+    
+    private void SimulateAdvancement(){
+        for (int i = 0; i < simulationSteps; i++){
+            StartCoroutine(SpawnNewCars(3));
+            StartCoroutine(SpawnNewCars(1));
+            foreach(Car car in cars){
+                car.SimulateFrames(38);
+            }
+            StartCoroutine(SpawnNewCars(0));
+            StartCoroutine(SpawnNewCars(2));
+            foreach(Car car in cars){
+                car.SimulateFrames(38);
+            }
         }
     }
 }
