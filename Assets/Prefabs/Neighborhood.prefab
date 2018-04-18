@@ -110,8 +110,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c610429573224156b0ec34f2904d5f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carPrefab: {fileID: 1864187505440984, guid: 19502f18b289445c09aa1282ead06279, type: 2}
-  carOffset: 0.5
+  carPrefabs:
+  - {fileID: 1864187505440984, guid: 19502f18b289445c09aa1282ead06279, type: 2}
+  - {fileID: 1458499021264744, guid: 74f638d44955245239f77be26801e40f, type: 2}
+  - {fileID: 1331457764742562, guid: e51344b53ed444d64b4468a0afe77c4e, type: 2}
+  carColors:
+  - {fileID: 2100000, guid: a2decf1499a6c404ca15bb44d429782a, type: 2}
+  - {fileID: 2100000, guid: 014176374a2e243b3bb49dc21941075b, type: 2}
+  - {fileID: 2100000, guid: 0e199b32a6cf04b49b7adb72d212509c, type: 2}
+  carOffset: 0.25
+  spawnTime: 3.5
+  verticalSpawnOffset: 1
+  simulationSteps: 10
+  spawnChance: 20
 --- !u!114 &114773899167161070
 MonoBehaviour:
   m_ObjectHideFlags: 1

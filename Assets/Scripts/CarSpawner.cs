@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CarSpawner : MonoBehaviour {
-    public GameObject carPrefab;
+    public List<GameObject> carPrefabs;
+    public List<Material> carColors;
     // TODO: Dynamic
     public float carOffset = 0.5f;
     public float spawnTime = 2;
     public float verticalSpawnOffset=1.2f;
     public float simulationSteps=2;
+    public float spawnChance;
     
     private List<Car> cars;
     private Neighborhood neighborhood;
@@ -39,7 +41,12 @@ public class CarSpawner : MonoBehaviour {
         float blockRadius = edgeBlocks[0].basePlane.GetComponent<MeshFilter>().mesh.bounds.extents.x;
         while(true){
             for (int i = 0; i < edgeBlocks.Length; i++){
+                if (UnityEngine.Random.value * 100 > spawnChance){
+                    continue;
+                }
                 int oppositeDirection = direction - 2;
+                GameObject carPrefab = carPrefabs[UnityEngine.Random.Range(0, carPrefabs.Count - 1)];
+                Material carColor = carColors[UnityEngine.Random.Range(0, carColors.Count - 1)];
                 GameObject carGameObject = Instantiate(carPrefab, Vector3.zero, Quaternion.identity);
                 Vector3 carPosition = Vector3.zero;
                 if (direction==0){
@@ -52,6 +59,9 @@ public class CarSpawner : MonoBehaviour {
                     carPosition = new Vector3(-blockRadius, 0, blockRadius - carOffset);
                 }
                 Quaternion rotation = Quaternion.Euler(0f, 90f * (oppositeDirection-1), 0f);
+                foreach (MeshRenderer renderer in carGameObject.GetComponentsInChildren<MeshRenderer>()){
+                    renderer.material = carColor;
+                }
                 carGameObject.transform.parent = edgeBlocks[i].transform;
                 carGameObject.transform.localPosition = carPosition;
                 carGameObject.transform.rotation = rotation;
