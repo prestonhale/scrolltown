@@ -688,7 +688,7 @@ GameObject:
   - component: {fileID: 33567746072947572}
   - component: {fileID: 64669107552179438}
   - component: {fileID: 23205100437667104}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2846,6 +2846,7 @@ MonoBehaviour:
   south: {fileID: 0}
   west: {fileID: 0}
   basePlane: {fileID: 1986871542031104}
+  neighborhood: {fileID: 0}
 --- !u!136 &136009716327677502
 CapsuleCollider:
   m_ObjectHideFlags: 1

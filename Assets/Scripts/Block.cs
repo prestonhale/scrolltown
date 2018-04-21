@@ -25,6 +25,7 @@ public class Block : MonoBehaviour {
 	public Block south;
 	public Block west;
 	public GameObject basePlane;
+	public Neighborhood neighborhood;
 
 	public void Awake(){
 		if (useColor){
@@ -34,5 +35,19 @@ public class Block : MonoBehaviour {
 
 	public override string ToString(){
 		return index.ToString() + ": " + type.ToString();
+	}
+
+	public Block GetNeighborInDirection(int direction){
+		if (direction == 0){
+			return north;
+		} else if (direction == 1){
+			return east;
+		} else if (direction == 2){
+			return south;
+		} else if (direction == 3){
+			return west;
+		} else {
+			return null;
+		}
 	}
 }

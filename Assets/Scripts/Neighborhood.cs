@@ -411,6 +411,7 @@ public class Neighborhood : MonoBehaviour
         Block block = blocks[i] = Instantiate<Block>(blockPrefab);
         block.transform.SetParent(transform, false);
         block.transform.position = newPosition;
+        block.neighborhood = this;
         block.index = GetIndex(x, z);
     }
 

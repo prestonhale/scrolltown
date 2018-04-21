@@ -562,7 +562,7 @@ GameObject:
   - component: {fileID: 33718474251152882}
   - component: {fileID: 64540011138915536}
   - component: {fileID: 23395640477162360}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8830,6 +8830,7 @@ MonoBehaviour:
   south: {fileID: 0}
   west: {fileID: 0}
   basePlane: {fileID: 1239624375053824}
+  neighborhood: {fileID: 0}
 --- !u!136 &136007475389725628
 CapsuleCollider:
   m_ObjectHideFlags: 1

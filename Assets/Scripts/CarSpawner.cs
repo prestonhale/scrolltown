@@ -14,6 +14,9 @@ public class CarSpawner : MonoBehaviour
     public float verticalSpawnOffset = 1.2f;
     public int simulationSteps = 2;
     public float spawnChance;
+	public int groundLayer;
+
+	public Material carWarningMaterial;
 
     private List<Car> cars;
     private Neighborhood neighborhood;
@@ -97,23 +100,11 @@ public class CarSpawner : MonoBehaviour
         carGameObject.transform.parent = parentBlock.transform;
         carGameObject.transform.localPosition = carPosition;
         carGameObject.transform.rotation = rotation;
+        Car car = carGameObject.GetComponent<Car>();
+        car.spawner = this;
+        car.direction = (direction + 2) % 4;  // Opposite direction
         return carGameObject;
     }
-
-    // private void SimulateAdvancement(){
-    //     for (int i = 0; i < simulationSteps; i++){
-    //         StartCoroutine(SpawnNewCars(3));
-    //         StartCoroutine(SpawnNewCars(1));
-    //         foreach(Car car in cars){
-    //             car.SimulateFrames(38);
-    //         }
-    //         StartCoroutine(SpawnNewCars(0));
-    //         StartCoroutine(SpawnNewCars(2));
-    //         foreach(Car car in cars){
-    //             car.SimulateFrames(38);
-    //         }
-    //     }
-    // }
 
     private void SimulateAdvancement(int steps)
     {

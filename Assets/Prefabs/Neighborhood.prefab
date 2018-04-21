@@ -123,6 +123,7 @@ MonoBehaviour:
   verticalSpawnOffset: 1
   simulationSteps: 10
   spawnChance: 20
+  carWarningMaterial: {fileID: 2100000, guid: 1b754c4feda7d41c5b4d3866ef7ae089, type: 2}
 --- !u!114 &114773899167161070
 MonoBehaviour:
   m_ObjectHideFlags: 1
