@@ -18,7 +18,7 @@ public class Car : MonoBehaviour {
 	}
 
 	public void SimulateFrames(int frames){
-		float defaultTimeScale = 0.05f;
+		float defaultTimeScale = 0.05f;   // 60 fps
 		float distancePerFrame = speed * defaultTimeScale;
 		float movement = frames * distancePerFrame; 
 		Move(movement);
