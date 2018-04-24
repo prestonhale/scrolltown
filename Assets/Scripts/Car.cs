@@ -25,7 +25,11 @@ public class Car : MonoBehaviour {
 	}
 
 	public void Update () {
-		float delta = speed * Time.deltaTime;
+		SpecifiedUpdate(Time.deltaTime);
+	}
+
+	private void SpecifiedUpdate(float elapsedTime){
+		float delta = speed * elapsedTime;
 		UpdateParentBlock();
 		if (ableToMove){
 			Move(delta);
@@ -33,10 +37,10 @@ public class Car : MonoBehaviour {
 	}
 
 	public void SimulateFrames(int frames){
-		float defaultTimeScale = 0.05f;   // 60 fps
-		float distancePerFrame = speed * defaultTimeScale;
-		float movement = frames * distancePerFrame; 
-		Move(movement);
+		float defaultTimeScale = 0.01667f;   // 60 fps
+		for (int i = 0; i <= frames; i++){
+			SpecifiedUpdate(defaultTimeScale);
+		}
 	}
 
 	public void Move(float delta){
