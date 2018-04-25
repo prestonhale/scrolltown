@@ -25,7 +25,6 @@ public struct GridCoord
 
 public class Neighborhood : MonoBehaviour
 {
-    public bool displayCoords;
     public float moveSpeed;
     public Vector3 moveDirection;
     public int height;
@@ -72,18 +71,6 @@ public class Neighborhood : MonoBehaviour
         random = new System.Random();
         blocks = new Block[height * width];
         radius = height / 2 * blockOffset;
-
-        if (displayCoords)
-        {
-            canvas = GetComponentInChildren<Canvas>();
-            for (int x = 0, i = 0; x < width; x++)
-            {
-                for (int z = 0; z < height; z++)
-                {
-                    CreateLabel(x, z, i++);
-                }
-            }
-        }
     }
 
     public void Update()
@@ -460,16 +447,6 @@ public class Neighborhood : MonoBehaviour
         return urbanCount;
     }
 
-
-    public void CreateLabel(int x, int z, int i)
-    {
-        Text text = Instantiate<Text>(labelPrefab);
-        text.transform.SetParent(canvas.transform, false);
-        text.name = x.ToString() + "," + z.ToString();
-        text.rectTransform.localPosition = new Vector2(x * blockOffset, z * blockOffset);
-        text.text = x.ToString() + "," + z.ToString();
-    }
-
     public void SetEdgeRoads()
     {
         float blockOffset = 4.75f;
@@ -484,18 +461,17 @@ public class Neighborhood : MonoBehaviour
                 bool westRural = false;
                 Block thisBlock = GetBlockAtCoords(x, z);
 
-                // Check rural
+                // For rural blocks if their neighbor is residential, add edge road
                 if (Array.IndexOf(rural, thisBlock.type) > -1)
                 {
                     for (int i = 0; i < 4; i++)
                     {
                         Block neighbor = GetBlockInDirection(i, x, z);
-                        if (!neighbor || Array.IndexOf(rural, neighbor.type) == -1)
+                        if (!neighbor) continue;
+                        if (Array.IndexOf(rural, neighbor.type) == -1)
                         {
                             GameObject edgeRoad = Instantiate(edgeRoadPrefab, Vector3.zero, Quaternion.identity);
                             Vector3 newPosition = Vector3.zero;
-
-                            // Check if neighbors are rural blocks, if they are add edge road
                             if (i == 0)
                             {
                                 newPosition = new Vector3(0, 0.01f, 1 * blockOffset);
@@ -514,6 +490,8 @@ public class Neighborhood : MonoBehaviour
                             }
                             edgeRoad.transform.SetParent(thisBlock.transform);
                             edgeRoad.transform.localPosition = newPosition;
+
+                            // Rotate edge horizontal edge roads to be horizontal
                             if (Array.IndexOf(new int[2] { 0, 2 }, i) > -1)
                             {
                                 edgeRoad.transform.Rotate(new Vector3(0, 90, 0));
@@ -523,7 +501,7 @@ public class Neighborhood : MonoBehaviour
                 }
 
                 // Check residential
-                if (Array.IndexOf(rural, thisBlock.type) == -1)
+                else
                 {
                     for (int i = 0; i < 4; i++)
                     {

@@ -14,7 +14,6 @@ public class CarSpawner : MonoBehaviour
     public float verticalSpawnOffset = 1.2f;
     public int simulationSteps = 2;
     public float spawnChance;
-	public int groundLayer;
 
 	public Material carWarningMaterial;
 
@@ -58,6 +57,13 @@ public class CarSpawner : MonoBehaviour
         Block[] edgeBlocks = neighborhood.GetEdgeBlocks(direction);
         for (int i = 0; i < edgeBlocks.Length; i++)
         {
+            BlockType[] rural = new BlockType[2]{BlockType.forest, BlockType.mountain};
+            int oppositeDirection = (direction + 2) % 4;
+            Block leftBlock = edgeBlocks[i].left(oppositeDirection);
+            if (
+                Array.IndexOf(rural, edgeBlocks[i].type) > -1 
+                && (!leftBlock || Array.IndexOf(rural, leftBlock.type) > -1)
+            ) return;
             GameObject carGameObject = SpawnCar(edgeBlocks[i], direction);
             if (carGameObject)
                 cars.Add(carGameObject.GetComponent<Car>());

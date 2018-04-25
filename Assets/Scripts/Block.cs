@@ -37,6 +37,18 @@ public class Block : MonoBehaviour {
 		return index.ToString() + ": " + type.ToString();
 	}
 
+	public Block left(int incomingDirection){
+		if (incomingDirection == 0){
+			return west;
+		} else if (incomingDirection == 1){
+			return north;
+		} else if (incomingDirection == 2){
+			return east;
+		} else {
+			return south;
+		}
+	}
+
 	public Block GetNeighborInDirection(int direction){
 		if (direction == 0){
 			return north;

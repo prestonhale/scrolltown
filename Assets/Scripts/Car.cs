@@ -50,11 +50,11 @@ public class Car : MonoBehaviour {
 
 	private void UpdateParentBlock(){
 		timeSinceLastChecked += Time.deltaTime;
-		if (timeSinceLastChecked >= 1.0f){
+		if (timeSinceLastChecked >= 2.0f){
 			timeSinceLastChecked = 0f;
 			RaycastHit hit;
 			Vector3 rayStart = transform.position + raycastOffset;
-			int mask = 1 << spawner.groundLayer;
+			int mask = 1 << 8;
 			if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
 				Debug.DrawRay(rayStart, -Vector3.up * hit.distance, Color.yellow, 3f);
 				Block blockUnderCar = hit.transform.gameObject.GetComponentInParent<Block>();
