@@ -30,7 +30,7 @@ public class Car : MonoBehaviour {
 
 	private void SpecifiedUpdate(float elapsedTime){
 		float delta = speed * elapsedTime;
-		UpdateParentBlock();
+		UpdateParentBlock(elapsedTime);
 		if (ableToMove){
 			Move(delta);
 		}
@@ -48,9 +48,9 @@ public class Car : MonoBehaviour {
 		transform.Translate(translation);
 	}
 
-	private void UpdateParentBlock(){
-		timeSinceLastChecked += Time.deltaTime;
-		if (timeSinceLastChecked >= 2.0f){
+	private void UpdateParentBlock(float elapsedTime){
+		timeSinceLastChecked += elapsedTime;
+		if (timeSinceLastChecked >= 1.0f){
 			timeSinceLastChecked = 0f;
 			RaycastHit hit;
 			Vector3 rayStart = transform.position + raycastOffset;

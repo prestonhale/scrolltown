@@ -61,9 +61,13 @@ public class Neighborhood : MonoBehaviour
     private System.Random random;
     private float radius;
 
+    public Vector3 bottomLeft {
+        get { return new Vector3(transform.position.x - (blockOffset/2), 0, transform.position.z - (blockOffset/2)); }
+    }
+
     public Vector3 centerPoint
     {
-        get { return new Vector3(transform.position.x + radius, 0, transform.position.z + radius); }
+        get { return new Vector3(bottomLeft.x + radius, 0, bottomLeft.z + radius); }
     }
 
     public void Awake()
@@ -81,6 +85,9 @@ public class Neighborhood : MonoBehaviour
             CreateNeighborhood();
         }
         // Frame debugger doesn't work unless you check this or the timescale
+    }
+
+    public void Move(){
         if (!UnityEditor.EditorApplication.isPaused){
             transform.Translate(moveDirection * moveSpeed);
         }

@@ -66,6 +66,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 	private NeighborhoodShape currentShape;
 	private NeighborhoodShape oldShape;
 	private NeighborhoodShape mediumShape;
+	private List<Neighborhood> neighborhoods = new List<Neighborhood>();
 	private float totalOffset;
 	private float radius;
 
@@ -73,8 +74,8 @@ public class NeighborhoodCreator : MonoBehaviour {
 		Physics.autoSimulation = false;
 		camera = Camera.main;
 		Screen.SetResolution(200, 200, false);
-		// We could create a separate height and width offset but lets keep it simple
 		Neighborhood neighborhood = neighborhoodPrefab.GetComponent<Neighborhood>();
+		// We could create a separate height and width offset but lets keep it simple
 		totalOffset = neighborhood.blockOffset * neighborhood.height;
 		radius = totalOffset/2;
 		currentShape = SpawnNeighborhoodShape(0f + neighborhood.blockOffset/2, 0f + neighborhood.blockOffset/2, null);
@@ -87,9 +88,10 @@ public class NeighborhoodCreator : MonoBehaviour {
 				oldShape = mediumShape;
 			}
 			mediumShape = currentShape;
-			Vector3 currentCenter = currentShape.center.centerPoint;
-			float spawnX = currentCenter.x - totalOffset;
-			float spawnZ = currentCenter.z + totalOffset;
+			Neighborhood centerOfShape = currentShape.center;
+			float spawnX = (centerOfShape.bottomLeft.x - totalOffset) + (centerOfShape.blockOffset/2);
+			float spawnZ = (centerOfShape.bottomLeft.z + totalOffset) + (centerOfShape.blockOffset/2);
+			// X and Z are the coords of the new BOTTOM LEFT!
 			currentShape = SpawnNeighborhoodShape(spawnX, spawnZ, mediumShape);
 			if (oldShape != null){
 				Destroy(oldShape.center.gameObject);
@@ -97,7 +99,9 @@ public class NeighborhoodCreator : MonoBehaviour {
 				Destroy(oldShape.left.gameObject);
 			}
 		}
-		
+		for (int i = 0; i < neighborhoods.Count; i++){
+			neighborhoods[i].Move();
+		}
 	}
 
 	public NeighborhoodShape SpawnNeighborhoodShape(float x, float z, NeighborhoodShape prevShape){
@@ -105,19 +109,17 @@ public class NeighborhoodCreator : MonoBehaviour {
 		Neighborhood top = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
 		Neighborhood left = Instantiate(neighborhoodPrefab, Vector3.zero, Quaternion.identity).GetComponent<Neighborhood>();
 
-		// TODO: These are both exactly 0.5 off, I have no idea why
-		// Possibly the order that update is called in? Rounding floats?
-		// Its really weird that they're EXACTLY .5 off.
-		x = x + 0.5f;
-		z = z - 0.5f;
-		
+		neighborhoods.Add(center);
+		neighborhoods.Add(top);
+		neighborhoods.Add(left);
+
 		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
 		shape.previousShape = prevShape;
 		shape.CreateAll();
 		
-		center.transform.position = new Vector3(x - radius, 0f, z - radius);
-		top.transform.position = new Vector3(x - radius, 0f, z + totalOffset - radius);
-		left.transform.position = new Vector3(x - totalOffset - radius, 0f, z -radius);
+		center.transform.position = new Vector3(x, 0f, z);
+		top.transform.position = new Vector3(x, 0f, z + totalOffset);
+		left.transform.position = new Vector3(x - totalOffset, 0f, z);
 
 		return shape;
 	}
