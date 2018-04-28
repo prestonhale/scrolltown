@@ -26,6 +26,12 @@ public class CarSpawner : MonoBehaviour
         cars = new List<Car>();
     }
 
+    public void Update(){
+        for (int i = 0; i < cars.Count; i++){
+            cars[i].Advance();
+        }
+    }
+
     public void StartSpawning()
     {
         SimulateAdvancement(10);

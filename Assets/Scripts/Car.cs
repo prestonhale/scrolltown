@@ -14,7 +14,6 @@ public class Car : MonoBehaviour {
 
 	// Testing
 	public Block pubNextBlock;
-	public Block pubLeftSideNeighbor;
 
 	private Vector3 raycastOffset;
 	private float timeSinceLastChecked;
@@ -24,17 +23,19 @@ public class Car : MonoBehaviour {
 	}
 
 	public void Awake(){
-		raycastOffset = new Vector3(0f, 1f, 0f);
 		ableToMove = true;
-		timeSinceLastChecked = 1.0f;
+		timeSinceLastChecked = 1.5f;
 	}
 
-	public void Start(){
-		UpdateParentBlock(0f);
-	}
-
-	public void Update () {
+	public void Advance () {
 		SpecifiedUpdate(Time.deltaTime);
+	}
+	
+	public void SimulateFrames(int frames){
+		float defaultTimeScale = 0.01667f;   // 60 fps
+		for (int i = 0; i <= frames; i++){
+			SpecifiedUpdate(defaultTimeScale);
+		}
 	}
 
 	private void SpecifiedUpdate(float elapsedTime){
@@ -45,13 +46,6 @@ public class Car : MonoBehaviour {
 		}
 	}
 
-	public void SimulateFrames(int frames){
-		float defaultTimeScale = 0.01667f;   // 60 fps
-		for (int i = 0; i <= frames; i++){
-			SpecifiedUpdate(defaultTimeScale);
-		}
-	}
-
 	public void Move(float delta){
 		Vector3 translation = new Vector3(delta, 0f, 0f);
 		transform.Translate(translation);
@@ -59,46 +53,37 @@ public class Car : MonoBehaviour {
 
 	private void UpdateParentBlock(float elapsedTime){
 		timeSinceLastChecked += elapsedTime;
-		if (timeSinceLastChecked >= 1.0f){
-			timeSinceLastChecked = 0f;
-			RaycastHit hit;
-			Vector3 rayStart = transform.position + raycastOffset;
-			int mask = 1 << 8;
-			if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
-				Debug.DrawRay(rayStart, -Vector3.up * hit.distance, Color.yellow, 3f);
-				Block blockUnderCar = hit.transform.gameObject.GetComponentInParent<Block>();
-				parentBlock = blockUnderCar;
-				if (!parentBlock)
-					return;
-				if (RoadIsEnding()){
-					MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-					foreach(MeshRenderer renderer in renderers){
-						renderer.material = spawner.carWarningMaterial;
-					}
-					ableToMove = false;
+		if (timeSinceLastChecked < 1.0f)
+			return;
+		timeSinceLastChecked = 0.0f;
+		RaycastHit hit;
+		Vector3 raycastOffset = new Vector3(0f, 1f, 0f) + direction.ToIntVector3();
+		Vector3 rayStart = transform.position + raycastOffset;
+		int mask = 1 << 8;
+		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
+			Debug.DrawRay(rayStart, -Vector3.up * hit.distance, Color.yellow, 3f);
+			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
+			if (!parentBlock)
+				return;
+			if (RoadIsEnding()){
+				MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
+				foreach(MeshRenderer renderer in renderers){
+					renderer.material = spawner.carWarningMaterial;
 				}
+				ableToMove = false;
+			} else {
+				ableToMove = true;
 			}
 		}
 	} 
 
 	private bool RoadIsEnding(){
-		// The road is ending if the next block in the Car's current direction
-		// as well as the block to the left of the next block, are both rural
-		// X | O O
-		//    ----
-		// X  X  X
-		BlockType[] rural = new BlockType[2]{BlockType.forest, BlockType.mountain}; 
 		Block nextBlock = parentBlock.GetNeighborInDirection(direction);
 		pubNextBlock = nextBlock;
-		if (!nextBlock || Array.IndexOf(rural, nextBlock.type) == -1){
+		Direction drivingSide = direction.GetLeft();
+		if (!nextBlock){
 			return false;
-		}
-		Block leftSideNeighbor = nextBlock.GetNeighborInDirection(direction.GetLeft());
-		pubLeftSideNeighbor = leftSideNeighbor;
-		if (!leftSideNeighbor){ // In this case, its the edge of world aka no road
-			return true;
-		}
-		if (Array.IndexOf(rural, leftSideNeighbor.type) == -1){
+		} else if (nextBlock.edgeRoads[(int)drivingSide]){
 			return false;
 		}
 		return true;

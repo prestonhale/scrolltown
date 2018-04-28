@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,8 @@ public class Block : MonoBehaviour {
 	public Block west;
 	public GameObject basePlane;
 	public Neighborhood neighborhood;
+    public GameObject edgeRoadPrefab;
+	public GameObject[] edgeRoads = new GameObject[4];
 
 	public void Awake(){
 		if (useColor){
@@ -61,5 +64,24 @@ public class Block : MonoBehaviour {
 		} else {
 			return null;
 		}
+	}
+
+	public GameObject AddEdgeRoad(Direction direction){
+		Debug.Log("Edge road!");
+		float blockOffset = 4.75f;
+		GameObject edgeRoad = Instantiate(edgeRoadPrefab, Vector3.zero, Quaternion.identity);
+		Vector3 yOffset = new Vector3(0f, 0.01f, 0f);
+		Vector3 newPosition = (direction.ToIntVector3() * blockOffset) + yOffset;
+		edgeRoad.transform.parent = this.transform;
+		edgeRoad.transform.localPosition = newPosition;
+		
+		if (Array.IndexOf(new Direction[2]{Direction.North, Direction.South}, direction) > -1)
+		{
+			edgeRoad.transform.Rotate(new Vector3(0, 90, 0));
+		}
+
+		edgeRoads[(int)direction] = edgeRoad;
+
+		return edgeRoad;
 	}
 }

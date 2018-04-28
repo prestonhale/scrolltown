@@ -115,11 +115,12 @@ public class NeighborhoodCreator : MonoBehaviour {
 
 		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
 		shape.previousShape = prevShape;
-		shape.CreateAll();
 		
 		center.transform.position = new Vector3(x, 0f, z);
 		top.transform.position = new Vector3(x, 0f, z + totalOffset);
 		left.transform.position = new Vector3(x - totalOffset, 0f, z);
+		
+		shape.CreateAll();
 
 		return shape;
 	}

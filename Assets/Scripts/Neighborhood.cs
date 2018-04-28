@@ -32,7 +32,6 @@ public class Neighborhood : MonoBehaviour
     public float blockOffset;
 
     [Header("Prefabs")]
-    public GameObject edgeRoadPrefab;
     public Text labelPrefab;
     public GameObject cornerRoadPrefab;
     public Block[] blockPrefabs = new Block[7];
@@ -404,7 +403,7 @@ public class Neighborhood : MonoBehaviour
         Block blockPrefab = blockPrefabs[blockIndex];
         Block block = blocks[i] = Instantiate<Block>(blockPrefab);
         block.transform.SetParent(transform, false);
-        block.transform.position = newPosition;
+        block.transform.localPosition = newPosition;
         block.neighborhood = this;
         block.index = GetIndex(x, z);
     }
@@ -456,111 +455,93 @@ public class Neighborhood : MonoBehaviour
 
     public void SetEdgeRoads()
     {
-        float blockOffset = 4.75f;
         BlockType[] rural = new BlockType[2] { BlockType.forest, BlockType.mountain };
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
             {
-                bool northRural = false;
-                bool eastRural = false;
-                bool southRural = false;
-                bool westRural = false;
                 Block thisBlock = GetBlockAtCoords(x, z);
-
-                // For rural blocks if their neighbor is residential, add edge road
-                if (Array.IndexOf(rural, thisBlock.type) > -1)
-                {
+                // Residential blocks always get 4 edge roads
+                if (Array.IndexOf(rural, thisBlock.type) == -1){
+                    foreach (Direction direction in Enum.GetValues(typeof(Direction))){
+                        thisBlock.AddEdgeRoad(direction);
+                    }
+                } else {  // Rural blocks only get edge roads if their neighbors are residential
                     for (int i = 0; i < 4; i++)
                     {
                         Block neighbor = GetBlockInDirection(i, x, z);
                         if (!neighbor) continue;
                         if (Array.IndexOf(rural, neighbor.type) == -1)
                         {
-                            GameObject edgeRoad = Instantiate(edgeRoadPrefab, Vector3.zero, Quaternion.identity);
-                            Vector3 newPosition = Vector3.zero;
-                            if (i == 0)
-                            {
-                                newPosition = new Vector3(0, 0.01f, 1 * blockOffset);
-                            }
-                            else if (i == 1)
-                            {
-                                newPosition = new Vector3(1 * blockOffset, 0.01f, 0);
-                            }
-                            else if (i == 2)
-                            {
-                                newPosition = new Vector3(0, 0.01f, -1 * blockOffset);
-                            }
-                            else if (i == 3)
-                            {
-                                newPosition = new Vector3(-1 * blockOffset, 0.01f, 0);
-                            }
-                            edgeRoad.transform.SetParent(thisBlock.transform);
-                            edgeRoad.transform.localPosition = newPosition;
+                            Direction direction = (Direction)i;
+                            thisBlock.AddEdgeRoad(direction);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-                            // Rotate edge horizontal edge roads to be horizontal
-                            if (Array.IndexOf(new int[2] { 0, 2 }, i) > -1)
-                            {
-                                edgeRoad.transform.Rotate(new Vector3(0, 90, 0));
-                            }
+    public void CheckCornerBlocks(){
+        // Check residential
+        bool northRural = false;
+        bool eastRural = false;
+        bool southRural = false;
+        bool westRural = false;
+        BlockType[] rural = new BlockType[2] { BlockType.forest, BlockType.mountain };
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                Block thisBlock = GetBlockAtCoords(x, z);
+                for (int i = 0; i < 4; i++)
+                {
+                    Block neighbor = GetBlockInDirection(i, x, z);
+                    if (!neighbor || Array.IndexOf(rural, neighbor.type) > -1)
+                    {
+                        if (i == 0)
+                        {
+                            northRural = true;
+                        }
+                        else if (i == 1)
+                        {
+                            eastRural = true;
+                        }
+                        else if (i == 2)
+                        {
+                            southRural = true;
+                        }
+                        else if (i == 3)
+                        {
+                            westRural = true;
                         }
                     }
                 }
 
-                // Check residential
-                else
+                // Assign corner blocks to avoid jagged corner edge roads
+                if (northRural && eastRural)
                 {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        Block neighbor = GetBlockInDirection(i, x, z);
-                        if (!neighbor || Array.IndexOf(rural, neighbor.type) > -1)
-                        {
-
-                            // Check if neighbors are rural blocks, if they are add edge road
-                            if (i == 0)
-                            {
-                                northRural = true;
-                            }
-                            else if (i == 1)
-                            {
-                                eastRural = true;
-                            }
-                            else if (i == 2)
-                            {
-                                southRural = true;
-                            }
-                            else if (i == 3)
-                            {
-                                westRural = true;
-                            }
-                        }
-                    }
-
-                    // Assign corner blocks to avoid jagged corner edge roads
-                    if (northRural && eastRural)
-                    {
-                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
-                        cornerRoad.transform.parent = thisBlock.transform;
-                        cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, 5.25f);
-                    }
-                    if (eastRural && southRural)
-                    {
-                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
-                        cornerRoad.transform.parent = thisBlock.transform;
-                        cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, -5.25f);
-                    }
-                    if (southRural && westRural)
-                    {
-                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
-                        cornerRoad.transform.parent = thisBlock.transform;
-                        cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, -5.25f);
-                    }
-                    if (westRural && northRural)
-                    {
-                        GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
-                        cornerRoad.transform.parent = thisBlock.transform;
-                        cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, 5.25f);
-                    }
+                    GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                    cornerRoad.transform.parent = thisBlock.transform;
+                    cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, 5.25f);
+                }
+                if (eastRural && southRural)
+                {
+                    GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                    cornerRoad.transform.parent = thisBlock.transform;
+                    cornerRoad.transform.localPosition = new Vector3(5.25f, 0.01f, -5.25f);
+                }
+                if (southRural && westRural)
+                {
+                    GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                    cornerRoad.transform.parent = thisBlock.transform;
+                    cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, -5.25f);
+                }
+                if (westRural && northRural)
+                {
+                    GameObject cornerRoad = Instantiate(cornerRoadPrefab, Vector3.zero, Quaternion.identity);
+                    cornerRoad.transform.parent = thisBlock.transform;
+                    cornerRoad.transform.localPosition = new Vector3(-5.25f, 0.01f, 5.25f);
                 }
             }
         }

@@ -2847,6 +2847,13 @@ MonoBehaviour:
   west: {fileID: 0}
   basePlane: {fileID: 1986871542031104}
   neighborhood: {fileID: 0}
+  edgeRoadPrefab: {fileID: 1885312037724396, guid: b54ae430f7f7444719c4960eda3c36ca,
+    type: 2}
+  edgeRoads:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!136 &136009716327677502
 CapsuleCollider:
   m_ObjectHideFlags: 1
