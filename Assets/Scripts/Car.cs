@@ -7,13 +7,17 @@ public class Car : MonoBehaviour {
 	
 	[Range(0, 3)]
 	public float speed;
-	public int direction;
+	public Direction direction;
 	public Block parentBlock;
 	public CarSpawner spawner;
 	public bool ableToMove;
 
+	// Testing
+	public Block pubNextBlock;
+	public Block pubLeftSideNeighbor;
+
 	private Vector3 raycastOffset;
-	private float timeSinceLastChecked = 0;
+	private float timeSinceLastChecked;
 
 	public Car(Quaternion rotation){
 		transform.rotation = rotation;
@@ -22,6 +26,11 @@ public class Car : MonoBehaviour {
 	public void Awake(){
 		raycastOffset = new Vector3(0f, 1f, 0f);
 		ableToMove = true;
+		timeSinceLastChecked = 1.0f;
+	}
+
+	public void Start(){
+		UpdateParentBlock(0f);
 	}
 
 	public void Update () {
@@ -78,19 +87,21 @@ public class Car : MonoBehaviour {
 		// X | O O
 		//    ----
 		// X  X  X
-		Block nextBlock = parentBlock.GetNeighborInDirection(direction);
-		if (!nextBlock)
-			return false;
 		BlockType[] rural = new BlockType[2]{BlockType.forest, BlockType.mountain}; 
-		if (Array.IndexOf(rural, nextBlock.type) > -1){
-			Block leftSideNeighbor = nextBlock.GetNeighborInDirection((direction + 3)%4);
-			if (!leftSideNeighbor)
-				return false;
-			if (Array.IndexOf(rural, leftSideNeighbor.type) > -1){
-				return true;
-			}
+		Block nextBlock = parentBlock.GetNeighborInDirection(direction);
+		pubNextBlock = nextBlock;
+		if (!nextBlock || Array.IndexOf(rural, nextBlock.type) == -1){
+			return false;
 		}
-		return false;
+		Block leftSideNeighbor = nextBlock.GetNeighborInDirection(direction.GetLeft());
+		pubLeftSideNeighbor = leftSideNeighbor;
+		if (!leftSideNeighbor){ // In this case, its the edge of world aka no road
+			return true;
+		}
+		if (Array.IndexOf(rural, leftSideNeighbor.type) == -1){
+			return false;
+		}
+		return true;
 	}
 
 }

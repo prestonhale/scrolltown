@@ -108,7 +108,7 @@ public class CarSpawner : MonoBehaviour
         carGameObject.transform.rotation = rotation;
         Car car = carGameObject.GetComponent<Car>();
         car.spawner = this;
-        car.direction = (direction + 2) % 4;  // Opposite direction
+        car.direction = ((Direction)direction).GetOpposite();  // Opposite direction
         return carGameObject;
     }
 

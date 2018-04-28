@@ -49,14 +49,14 @@ public class Block : MonoBehaviour {
 		}
 	}
 
-	public Block GetNeighborInDirection(int direction){
-		if (direction == 0){
+	public Block GetNeighborInDirection(Direction direction){
+		if (direction == Direction.North){
 			return north;
-		} else if (direction == 1){
+		} else if (direction == Direction.East){
 			return east;
-		} else if (direction == 2){
+		} else if (direction == Direction.South){
 			return south;
-		} else if (direction == 3){
+		} else if (direction == Direction.West){
 			return west;
 		} else {
 			return null;
