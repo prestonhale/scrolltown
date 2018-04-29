@@ -117,7 +117,7 @@ public class Car : MonoBehaviour {
 			roadIsEnding = false;
 
 		} else {
-			Debug.Log("EROOOROROR");
+			throw new Exception("Unknown direction.");
 		}
 	}
 
