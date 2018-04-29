@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,7 +17,7 @@ public static class Directions {
 
 	public static Direction RandomValue {
 		get {
-			return (Direction)Random.Range(0, Count);
+			return (Direction)UnityEngine.Random.Range(0, Count);
 		}
 	}
 
@@ -29,6 +30,10 @@ public static class Directions {
 
 	public static Vector3 ToIntVector3 (this Direction direction){
 		return vector3s[(int)direction];
+	}
+
+	public static Direction GetFromVector (Vector3 vector){
+		return (Direction)Array.IndexOf(vector3s, vector);
 	}
 
 	private static Quaternion[] rotations = {
@@ -64,5 +69,17 @@ public static class Directions {
 	public static Direction GetLeft (this Direction direction){
 		return left[(int)direction];
 	}
+
+    private static Direction[] right = {
+		Direction.East,
+		Direction.South,
+		Direction.West,
+		Direction.North,
+	};
+
+	public static Direction GetRight (this Direction direction){
+		return left[(int)direction];
+	}
+
 
 }

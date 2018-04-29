@@ -67,7 +67,6 @@ public class Block : MonoBehaviour {
 	}
 
 	public GameObject AddEdgeRoad(Direction direction){
-		Debug.Log("Edge road!");
 		float blockOffset = 4.75f;
 		GameObject edgeRoad = Instantiate(edgeRoadPrefab, Vector3.zero, Quaternion.identity);
 		Vector3 yOffset = new Vector3(0f, 0.01f, 0f);

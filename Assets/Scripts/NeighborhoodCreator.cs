@@ -94,8 +94,11 @@ public class NeighborhoodCreator : MonoBehaviour {
 			// X and Z are the coords of the new BOTTOM LEFT!
 			currentShape = SpawnNeighborhoodShape(spawnX, spawnZ, mediumShape);
 			if (oldShape != null){
+				neighborhoods.Remove(oldShape.center.gameObject.GetComponent<Neighborhood>());
 				Destroy(oldShape.center.gameObject);
+				neighborhoods.Remove(oldShape.top.gameObject.GetComponent<Neighborhood>());
 				Destroy(oldShape.top.gameObject);
+				neighborhoods.Remove(oldShape.left.gameObject.GetComponent<Neighborhood>());
 				Destroy(oldShape.left.gameObject);
 			}
 		}

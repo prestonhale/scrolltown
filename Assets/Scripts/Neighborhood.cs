@@ -116,7 +116,6 @@ public class Neighborhood : MonoBehaviour
         PlaceParks();
         PlaceShopping();
         SetEdgeRoads();
-        GetComponent<CarSpawner>().StartSpawning();
     }
 
     public void IterativelySmooth(int smoothCount)

@@ -7,10 +7,11 @@ public class Car : MonoBehaviour {
 	
 	[Range(0, 3)]
 	public float speed;
-	public Direction direction;
 	public Block parentBlock;
 	public CarSpawner spawner;
 	public bool ableToMove;
+	public bool roadIsEnding;
+	public Direction direction;
 
 	// Testing
 	public Block pubNextBlock;
@@ -27,7 +28,7 @@ public class Car : MonoBehaviour {
 		timeSinceLastChecked = 1.5f;
 	}
 
-	public void Advance () {
+	public void Update () {
 		SpecifiedUpdate(Time.deltaTime);
 	}
 	
@@ -44,6 +45,8 @@ public class Car : MonoBehaviour {
 		if (ableToMove){
 			Move(delta);
 		}
+		// if (roadIsEnding)
+		// 	TurnIfNecessary();
 	}
 
 	public void Move(float delta){
@@ -57,7 +60,7 @@ public class Car : MonoBehaviour {
 			return;
 		timeSinceLastChecked = 0.0f;
 		RaycastHit hit;
-		Vector3 raycastOffset = new Vector3(0f, 1f, 0f) + direction.ToIntVector3();
+		Vector3 raycastOffset = new Vector3(0f, 1f, 0f);
 		Vector3 rayStart = transform.position + raycastOffset;
 		int mask = 1 << 8;
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
@@ -70,9 +73,7 @@ public class Car : MonoBehaviour {
 				foreach(MeshRenderer renderer in renderers){
 					renderer.material = spawner.carWarningMaterial;
 				}
-				ableToMove = false;
-			} else {
-				ableToMove = true;
+				roadIsEnding = true;
 			}
 		}
 	} 
@@ -87,6 +88,37 @@ public class Car : MonoBehaviour {
 			return false;
 		}
 		return true;
+	}
+
+	public void TurnIfNecessary(){
+		Vector3 centerOfRoad = parentBlock.transform.position + (direction.ToIntVector3() * 4.75f);
+		if (direction == Direction.North && transform.position.z >= centerOfRoad.z){
+			transform.position = new Vector3(transform.position.x, transform.position.y, centerOfRoad.z);
+			transform.Rotate(new Vector3(0f, 90f, 0f));
+			direction = Direction.East;
+			roadIsEnding = false;
+
+		} else if (direction == Direction.East && transform.position.x >= centerOfRoad.x){
+			transform.position = new Vector3(centerOfRoad.x, transform.position.y, transform.position.x);
+			transform.Rotate(new Vector3(0f, 90f, 0f));
+			direction = Direction.South;
+			roadIsEnding = false;
+
+		} else if (direction == Direction.South && transform.position.z <= centerOfRoad.z){
+			transform.position = new Vector3(transform.position.x, transform.position.y, centerOfRoad.z);
+			transform.Rotate(new Vector3(0f, 90f, 0f));
+			direction = Direction.West;
+			roadIsEnding = false;
+
+		} else if (direction == Direction.West && transform.position.x <= centerOfRoad.x){
+			transform.position = new Vector3(centerOfRoad.x, transform.position.y, transform.position.x);
+			transform.Rotate(new Vector3(0f, 90f, 0f));
+			direction = Direction.North;
+			roadIsEnding = false;
+
+		} else {
+			Debug.Log("EROOOROROR");
+		}
 	}
 
 }
