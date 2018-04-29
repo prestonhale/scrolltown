@@ -11,7 +11,7 @@ public class Car : MonoBehaviour {
 	public CarSpawner spawner;
 	public bool ableToMove;
 	public bool roadIsEnding;
-	public Direction direction;
+	public Direction heading;
 
 	// Testing
 	public Block pubNextBlock;
@@ -79,9 +79,9 @@ public class Car : MonoBehaviour {
 	} 
 
 	private bool RoadIsEnding(){
-		Block nextBlock = parentBlock.GetNeighborInDirection(direction);
+		Block nextBlock = parentBlock.GetNeighborInDirection(heading);
 		pubNextBlock = nextBlock;
-		Direction drivingSide = direction.GetLeft();
+		Direction drivingSide = heading.GetLeft();
 		if (!nextBlock){
 			return false;
 		} else if (nextBlock.edgeRoads[(int)drivingSide]){
@@ -91,29 +91,29 @@ public class Car : MonoBehaviour {
 	}
 
 	public void TurnIfNecessary(){
-		Vector3 centerOfRoad = parentBlock.transform.position + (direction.ToIntVector3() * 4.75f);
-		if (direction == Direction.North && transform.position.z >= centerOfRoad.z){
+		Vector3 centerOfRoad = parentBlock.transform.position + (heading.ToIntVector3() * 4.75f);
+		if (heading == Direction.North && transform.position.z >= centerOfRoad.z){
 			transform.position = new Vector3(transform.position.x, transform.position.y, centerOfRoad.z);
 			transform.Rotate(new Vector3(0f, 90f, 0f));
-			direction = Direction.East;
+			heading = Direction.East;
 			roadIsEnding = false;
 
-		} else if (direction == Direction.East && transform.position.x >= centerOfRoad.x){
+		} else if (heading == Direction.East && transform.position.x >= centerOfRoad.x){
 			transform.position = new Vector3(centerOfRoad.x, transform.position.y, transform.position.x);
 			transform.Rotate(new Vector3(0f, 90f, 0f));
-			direction = Direction.South;
+			heading = Direction.South;
 			roadIsEnding = false;
 
-		} else if (direction == Direction.South && transform.position.z <= centerOfRoad.z){
+		} else if (heading == Direction.South && transform.position.z <= centerOfRoad.z){
 			transform.position = new Vector3(transform.position.x, transform.position.y, centerOfRoad.z);
 			transform.Rotate(new Vector3(0f, 90f, 0f));
-			direction = Direction.West;
+			heading = Direction.West;
 			roadIsEnding = false;
 
-		} else if (direction == Direction.West && transform.position.x <= centerOfRoad.x){
+		} else if (heading == Direction.West && transform.position.x <= centerOfRoad.x){
 			transform.position = new Vector3(centerOfRoad.x, transform.position.y, transform.position.x);
 			transform.Rotate(new Vector3(0f, 90f, 0f));
-			direction = Direction.North;
+			heading = Direction.North;
 			roadIsEnding = false;
 
 		} else {

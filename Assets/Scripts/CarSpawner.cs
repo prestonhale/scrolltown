@@ -17,87 +17,67 @@ public class CarSpawner : MonoBehaviour
 
 	public Material carWarningMaterial;
 
-    private List<Car> cars;
-    private Neighborhood neighborhood;
+    // Testing
+    public Neighborhood neighborhood;
+    public List<Car> cars = new List<Car>();
 
     public void Awake()
     {
         neighborhood = GetComponent<Neighborhood>();
-        cars = new List<Car>();
     }
 
-    public void StartSpawning()
+    public void Begin()
     {
-        SimulateAdvancement(10);
+        SimulateAdvancement();
     }
 
-    private IEnumerator StartSpawnRoutines()
-    {
-        StartCoroutine(SpawnNewCars(3));
-        StartCoroutine(SpawnNewCars(1));
-        yield return new WaitForSeconds(verticalSpawnOffset);
-        StartCoroutine(SpawnNewCars(0));
-        StartCoroutine(SpawnNewCars(2));
-        yield return null;
-    }
-
-    private IEnumerator SpawnNewCars(int direction)
-    {
-        // TODO: I thought extents x would = 10 but its only 5? Probably because origin is not at bottom-left
-        while (true)
-        {
-            SpawnCarsForEdge(direction);
-            yield return new WaitForSeconds(spawnTime);
-        }
-    }
-
-    private void SpawnCarsForEdge(int direction)
+    private void SpawnCarsForEdge(Direction direction)
     {
         Block[] edgeBlocks = neighborhood.GetEdgeBlocks(direction);
-        for (int i = 0; i < edgeBlocks.Length; i++)
-        {
-            BlockType[] rural = new BlockType[2]{BlockType.forest, BlockType.mountain};
-            int oppositeDirection = (direction + 2) % 4;
-            Block leftBlock = edgeBlocks[i].left(oppositeDirection);
-            if (
-                Array.IndexOf(rural, edgeBlocks[i].type) > -1 
-                && (!leftBlock || Array.IndexOf(rural, leftBlock.type) > -1)
-            ) return;
-            GameObject carGameObject = SpawnCar(edgeBlocks[i], direction);
+        Debug.Log(edgeBlocks);
+        for (int i = 0; i < edgeBlocks.Length; i++){
+            Block parentBlock = edgeBlocks[i];
+            Block leftBlock = parentBlock.GetLeft(direction.GetOpposite());
+            if (parentBlock.type.IsRural() && leftBlock.type.IsRural()){
+                continue;
+            }
+            GameObject carGameObject = SpawnCar(parentBlock, direction);
             if (carGameObject)
                 cars.Add(carGameObject.GetComponent<Car>());
         }
     }
 
-    private GameObject SpawnCar(Block parentBlock, int direction)
+    private GameObject SpawnCar(Block parentBlock, Direction direction)
     {
         if (UnityEngine.Random.value * 100 > spawnChance)
         {
             return null;
         }
         float blockRadius = parentBlock.basePlane.GetComponent<MeshFilter>().mesh.bounds.extents.x;
-        int oppositeDirection = direction - 2;
         GameObject carPrefab = carPrefabs[UnityEngine.Random.Range(0, carPrefabs.Count - 1)];
         Material carColor = carColors[UnityEngine.Random.Range(0, carColors.Count - 1)];
+
         GameObject carGameObject = Instantiate(carPrefab, Vector3.zero, Quaternion.identity);
         Vector3 carPosition = Vector3.zero;
-        if (direction == 0)
+        if (direction == Direction.North)
         {
             carPosition = new Vector3(blockRadius - carOffset, 0, blockRadius);
         }
-        else if (direction == 1)
+        else if (direction == Direction.East)
         {
             carPosition = new Vector3(blockRadius, 0, -blockRadius + carOffset);
         }
-        else if (direction == 2)
+        else if (direction == Direction.South)
         {
             carPosition = new Vector3(-blockRadius + carOffset, 0, -blockRadius);
         }
-        else
+        else if (direction == Direction.West)
         {
             carPosition = new Vector3(-blockRadius, 0, blockRadius - carOffset);
+        } else {
+            Debug.Log("ERRRRRRORRR");
         }
-        Quaternion rotation = Quaternion.Euler(0f, 90f * (oppositeDirection - 1), 0f);
+        Quaternion rotation = Quaternion.Euler(0f, 90f * ((int)direction.GetOpposite() - 1), 0f);
         foreach (MeshRenderer renderer in carGameObject.GetComponentsInChildren<MeshRenderer>())
         {
             renderer.material = carColor;
@@ -107,28 +87,27 @@ public class CarSpawner : MonoBehaviour
         carGameObject.transform.rotation = rotation;
         Car car = carGameObject.GetComponent<Car>();
         car.spawner = this;
-        car.direction = ((Direction)direction).GetOpposite();  // Opposite direction
+        car.heading = ((Direction)direction).GetOpposite();
+        Debug.Log("CAR");
         return carGameObject;
     }
 
-    private void SimulateAdvancement(int steps)
-    {
-        foreach(int step in Enumerable.Range(0, 10)){
-            // 2 seconds of time total at 60 fps
-            SpawnCarsForEdge(3);
-            SpawnCarsForEdge(1);
-            foreach (Car car in cars)
-            {
-                car.SimulateFrames(72);  // 1.2 seconds
-            }
-            SpawnCarsForEdge(0);
-            SpawnCarsForEdge(2);
-            foreach (Car car in cars)
-            {
-                car.SimulateFrames(48);  // 0.8 seconds
-            }
-        }
+    private void SimulateAdvancement(){
+        // 2 seconds of time total at 60 fps
+        SpawnCarsForEdge(Direction.West);
+        // SpawnCarsForEdge(Direction.East);
+        // foreach (Car car in cars)
+        // {
+        //     car.SimulateFrames(72);  // 1.2 seconds
+        // }
+        // SpawnCarsForEdge(Direction.North);
+        // SpawnCarsForEdge(Direction.South);
+        // foreach (Car car in cars)
+        // {
+        //     car.SimulateFrames(48);  // 0.8 seconds
+        // }
     }
+
 }
 
 

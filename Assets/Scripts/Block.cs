@@ -13,6 +13,19 @@ public enum BlockType {
 	none
 }
 
+public static class BlockTypes {
+
+	public static BlockType[] RuralTypes = new BlockType[2]{
+		BlockType.forest,
+		BlockType.mountain
+	};
+
+	public static bool IsRural(this BlockType type){
+		return Array.IndexOf(RuralTypes, type) > -1;
+	}
+
+}
+
 
 // TODO: Make generation of these programmtic rather than prefab based
 public class Block : MonoBehaviour {
@@ -40,15 +53,17 @@ public class Block : MonoBehaviour {
 		return index.ToString() + ": " + type.ToString();
 	}
 
-	public Block left(int incomingDirection){
-		if (incomingDirection == 0){
+	public Block GetLeft(Direction incomingDirection){
+		if (incomingDirection == Direction.North){
 			return west;
-		} else if (incomingDirection == 1){
+		} else if (incomingDirection == Direction.East){
 			return north;
-		} else if (incomingDirection == 2){
+		} else if (incomingDirection == Direction.South){
 			return east;
-		} else {
+		} else if (incomingDirection == Direction.West){
 			return south;
+		} else {
+			throw new Exception("Unknown direction.");
 		}
 	}
 

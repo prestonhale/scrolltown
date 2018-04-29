@@ -70,7 +70,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 	private float totalOffset;
 	private float radius;
 
-	void Start() {
+	public void Start() {
 		Physics.autoSimulation = false;
 		camera = Camera.main;
 		Screen.SetResolution(200, 200, false);
@@ -81,7 +81,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 		currentShape = SpawnNeighborhoodShape(0f + neighborhood.blockOffset/2, 0f + neighborhood.blockOffset/2, null);
 	}
 
-	void Update () {
+	public void Update () {
 		// TODO: There's probably something better to check here
 		if (currentShape.center.centerPoint.x > camera.transform.position.x){
 			if (mediumShape != null){

@@ -76,6 +76,11 @@ public class Neighborhood : MonoBehaviour
         radius = height / 2 * blockOffset;
     }
 
+    public void Start(){
+        CreateNeighborhood();
+    }
+
+
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
@@ -83,7 +88,6 @@ public class Neighborhood : MonoBehaviour
             DestroyNeighborhood();
             CreateNeighborhood();
         }
-        // Frame debugger doesn't work unless you check this or the timescale
     }
 
     public void Move(){
@@ -116,6 +120,10 @@ public class Neighborhood : MonoBehaviour
         PlaceParks();
         PlaceShopping();
         SetEdgeRoads();
+        CarSpawner carSpawner = GetComponent<CarSpawner>();
+        if (carSpawner){
+            carSpawner.Begin();
+        }
     }
 
     public void IterativelySmooth(int smoothCount)
@@ -351,6 +359,12 @@ public class Neighborhood : MonoBehaviour
         }
     }
 
+    public bool ContainsIndex(int index){
+        if (index >= 0 && index < blocks.Length)
+            return true;
+        return false;
+    }
+
     public void CalculateNeighbors(int x, int z)
     {
         Block block = GetBlockAtCoords(x, z);
@@ -371,29 +385,34 @@ public class Neighborhood : MonoBehaviour
 
     public Block GetBlockAtCoords(int x, int z)
     {
-        if (x < 0){
-            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(3, this);
-            if (!borderingNeighborhood) return null;
-            return borderingNeighborhood.GetBlockAtCoords(width - 1, z);
-        }
-        if (z < 0){
-            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(2, this);
-            if (!borderingNeighborhood) return null;
-            return borderingNeighborhood.GetBlockAtCoords(x, height -1);
-        }
-        if (x > width - 1){
-            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(1, this);
-            if (!borderingNeighborhood) return null;
-            return borderingNeighborhood.GetBlockAtCoords(0, z);
-        }
-        if (z > height - 1){
-            Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(0, this);
-            if (!borderingNeighborhood) return null;
-            return borderingNeighborhood.GetBlockAtCoords(x, 0);
+        if (parentShape != null){
+            if (x < 0){
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(3, this);
+                if (!borderingNeighborhood) return null;
+                return borderingNeighborhood.GetBlockAtCoords(width - 1, z);
+            }
+            if (z < 0){
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(2, this);
+                if (!borderingNeighborhood) return null;
+                return borderingNeighborhood.GetBlockAtCoords(x, height -1);
+            }
+            if (x > width - 1){
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(1, this);
+                if (!borderingNeighborhood) return null;
+                return borderingNeighborhood.GetBlockAtCoords(0, z);
+            }
+            if (z > height - 1){
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(0, this);
+                if (!borderingNeighborhood) return null;
+                return borderingNeighborhood.GetBlockAtCoords(x, 0);
+            }
         }
         int index = GetIndex(x, z);
-        Block block = blocks[index];
-        return block;
+        if (ContainsIndex(index)){
+            Block block = blocks[index];
+            return block;
+        }
+        return null;
     }
 
     public void CreateBlock(int blockIndex, int x, int z, int i)
@@ -546,27 +565,27 @@ public class Neighborhood : MonoBehaviour
         }
     }
 
-    public Block[] GetEdgeBlocks(int direction){
+    public Block[] GetEdgeBlocks(Direction direction){
         Block[] edgeBlocks = new Block[width];
-        if (direction == 0){
+        if (direction == Direction.North){
             edgeBlocks = new Block[width];
             for (int i = 0; i < width; i++){
                 edgeBlocks[i] = GetBlockAtCoords(i, height-1);
             }
         }
-        else if (direction == 1){
+        else if (direction == Direction.East){
             edgeBlocks = new Block[height];
             for (int i = 0; i < height; i++){
                 edgeBlocks[i] = GetBlockAtCoords(width-1, i);
             }
         }
-        else if (direction == 2){
+        else if (direction == Direction.South){
             edgeBlocks = new Block[width];
             for (int i = 0; i < width; i++){
                 edgeBlocks[i] = GetBlockAtCoords(i, 0);
             }
         }
-        else if (direction == 3){
+        else if (direction == Direction.West){
             edgeBlocks = new Block[height];
             for (int i = 0; i < height; i++){
                 edgeBlocks[i] = GetBlockAtCoords(0, i);
