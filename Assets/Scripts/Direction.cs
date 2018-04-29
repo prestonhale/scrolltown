@@ -78,7 +78,7 @@ public static class Directions {
 	};
 
 	public static Direction GetRight (this Direction direction){
-		return left[(int)direction];
+		return right[(int)direction];
 	}
 
 

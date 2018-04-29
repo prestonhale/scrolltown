@@ -6,26 +6,22 @@ using UnityEngine;
 public class Car : MonoBehaviour {
 	
 	[Range(0, 3)]
-	public float speed;
+	public float speed = 2;
 	public Block parentBlock;
 	public CarSpawner spawner;
 	public bool ableToMove;
-	public bool roadIsEnding;
+	public bool mustTurn;
 	public Direction heading;
 
 	// Testing
 	public Block pubNextBlock;
 
 	private Vector3 raycastOffset;
-	private float timeSinceLastChecked;
+	private float timeSinceLastChecked = 0f;
 
-	public Car(Quaternion rotation){
-		transform.rotation = rotation;
-	}
-
-	public void Awake(){
+	public void Start(){
 		ableToMove = true;
-		timeSinceLastChecked = 1.5f;
+		mustTurn = false;
 	}
 
 	public void Update () {
@@ -45,8 +41,8 @@ public class Car : MonoBehaviour {
 		if (ableToMove){
 			Move(delta);
 		}
-		// if (roadIsEnding)
-		// 	TurnIfNecessary();
+		if (mustTurn)
+			TurnIfNecessary();
 	}
 
 	public void Move(float delta){
@@ -66,59 +62,120 @@ public class Car : MonoBehaviour {
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
 			Debug.DrawRay(rayStart, -Vector3.up * hit.distance, Color.yellow, 3f);
 			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
-			if (!parentBlock)
+			if (!parentBlock){
 				return;
-			if (RoadIsEnding()){
-				MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-				foreach(MeshRenderer renderer in renderers){
-					renderer.material = spawner.carWarningMaterial;
-				}
-				roadIsEnding = true;
 			}
+			CheckRoadIsEnding();
 		}
 	} 
 
-	private bool RoadIsEnding(){
+	private void CheckRoadIsEnding(){
 		Block nextBlock = parentBlock.GetNeighborInDirection(heading);
 		pubNextBlock = nextBlock;
 		Direction drivingSide = heading.GetLeft();
 		if (!nextBlock){
-			return false;
+			SetRoadEnding(false);
 		} else if (nextBlock.edgeRoads[(int)drivingSide]){
-			return false;
+			SetRoadEnding(false);
+		} else {
+			SetRoadEnding(true);
 		}
-		return true;
 	}
 
+
 	public void TurnIfNecessary(){
-		Vector3 centerOfRoad = parentBlock.transform.position + (heading.ToIntVector3() * 4.75f);
-		if (heading == Direction.North && transform.position.z >= centerOfRoad.z){
-			transform.position = new Vector3(transform.position.x, transform.position.y, centerOfRoad.z);
-			transform.Rotate(new Vector3(0f, 90f, 0f));
-			heading = Direction.East;
-			roadIsEnding = false;
-
-		} else if (heading == Direction.East && transform.position.x >= centerOfRoad.x){
-			transform.position = new Vector3(centerOfRoad.x, transform.position.y, transform.position.x);
-			transform.Rotate(new Vector3(0f, 90f, 0f));
-			heading = Direction.South;
-			roadIsEnding = false;
-
-		} else if (heading == Direction.South && transform.position.z <= centerOfRoad.z){
-			transform.position = new Vector3(transform.position.x, transform.position.y, centerOfRoad.z);
-			transform.Rotate(new Vector3(0f, 90f, 0f));
-			heading = Direction.West;
-			roadIsEnding = false;
-
-		} else if (heading == Direction.West && transform.position.x <= centerOfRoad.x){
-			transform.position = new Vector3(centerOfRoad.x, transform.position.y, transform.position.x);
-			transform.Rotate(new Vector3(0f, 90f, 0f));
-			heading = Direction.North;
-			roadIsEnding = false;
-
+		// TODO: Make dynamic
+		float offsetAdjuster = 5f - 0.25f; // 5 for half of block .25 for half of road width
+		if (parentBlock == null){
+			return;
+		}
+		if (heading == Direction.North){
+			if (transform.position.z >= parentBlock.transform.position.z + offsetAdjuster){
+				SelectTurnDirection();
+			}
+		} else if (heading == Direction.East){
+			if (transform.position.x >= parentBlock.transform.position.x + offsetAdjuster){
+				SelectTurnDirection();
+			}
+		} else if (heading == Direction.South){
+			if (transform.position.z <= parentBlock.transform.position.z - offsetAdjuster){
+				SelectTurnDirection();
+			}
+		} else if (heading == Direction.West){
+			if (transform.position.x <= parentBlock.transform.position.x - offsetAdjuster){
+				SelectTurnDirection();
+			}
 		} else {
 			throw new Exception("Unknown direction.");
 		}
 	}
 
+	public void SelectTurnDirection(){
+		// TODO: Clarify this quite a bit
+		// If we're going north and turn right:
+		// We'll be on the north edge of our same block
+		Block rightBlock = parentBlock;
+		Direction rightEdgeRoad = heading; 
+		if (rightBlock && rightBlock.edgeRoads[(int)rightEdgeRoad] != null){
+			TurnRight();
+			SetRoadEnding(false);
+			return;
+		}
+
+		// If we're going north and turn left
+		// We'll be on the south edge of the block one north and one west of us
+		Block forwardBlock = parentBlock.GetNeighborInDirection(heading);
+		if (forwardBlock == null){
+			return;
+		}
+		Block leftBlock = forwardBlock.GetNeighborInDirection(heading.GetLeft());
+		Direction leftEdgeRoad = heading.GetOpposite();
+		if (leftBlock && leftBlock.edgeRoads[(int)leftEdgeRoad] != null){
+			TurnLeft();
+			SetRoadEnding(false);
+			return;
+		}
+	}
+
+	public void TurnRight(){
+		SetRoadEnding(false);
+		float roadWidth = .5f;
+		float blockWidth = 10f;
+		// Right keeps on this blocks road
+		Vector3 offset = (heading.ToIntVector3() + heading.GetLeft().ToIntVector3())* ((blockWidth/2) - (roadWidth/2));
+		transform.position = parentBlock.transform.position + offset;
+		transform.Rotate(new Vector3(0f, 90f, 0f));
+		heading = heading.GetRight();
+
+		ChangeColor(spawner.rightTurnColor);
+	}
+	
+	public void TurnLeft(){
+		SetRoadEnding(false);
+		// TODO: Dynamic
+		float roadWidth = .5f;
+		float blockWidth = 10f;
+		// Left is on other side of road
+		Vector3 offset = (heading.ToIntVector3() + heading.GetLeft().ToIntVector3()) * ((blockWidth/2) + (roadWidth/2));
+		transform.position = parentBlock.transform.position + offset;
+		transform.Rotate(new Vector3(0f, -90f, 0f));
+		heading = heading.GetLeft();
+
+		ChangeColor(spawner.leftTurnColor);
+	}
+
+	private void SetRoadEnding(bool roadEnding){
+		mustTurn = roadEnding;
+		if (roadEnding){
+			ChangeColor(spawner.carWarningMaterial);
+		}
+	}
+
+	private void ChangeColor(Material material){
+        MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
+        foreach(MeshRenderer renderer in renderers){
+			renderer.material = material;
+		}
+	}
+		
 }

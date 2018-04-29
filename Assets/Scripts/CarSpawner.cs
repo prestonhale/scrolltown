@@ -9,15 +9,17 @@ public class CarSpawner : MonoBehaviour
     public List<GameObject> carPrefabs;
     public List<Material> carColors;
     // TODO: Dynamic
-    public float carOffset = 0.5f;
+    public float carOffset;
+
     public int simulationSteps = 10;
     public float spawnChance;
-
 	public Material carWarningMaterial;
+	public Material rightTurnColor;
+	public Material leftTurnColor;
 
-    // Testing
-    public Neighborhood neighborhood;
-    public List<Car> cars = new List<Car>();
+    // Private
+    private Neighborhood neighborhood;
+    private List<Car> cars = new List<Car>();
 
     public void Awake()
     {
@@ -98,6 +100,10 @@ public class CarSpawner : MonoBehaviour
         }
         SpawnCarsForEdge(Direction.North);
         SpawnCarsForEdge(Direction.South);
+        foreach (Car car in cars)
+        {
+            car.SimulateFrames(120);  // 2 seconds at 60 fps
+        }
     }
 
 }

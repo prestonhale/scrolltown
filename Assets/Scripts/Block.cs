@@ -66,6 +66,20 @@ public class Block : MonoBehaviour {
 			throw new Exception("Unknown direction.");
 		}
 	}
+	
+	public Block GetRight(Direction incomingDirection){
+		if (incomingDirection == Direction.North){
+			return east;
+		} else if (incomingDirection == Direction.East){
+			return south;
+		} else if (incomingDirection == Direction.South){
+			return west;
+		} else if (incomingDirection == Direction.West){
+			return north;
+		} else {
+			throw new Exception("Unknown direction.");
+		}
+	}
 
 	public Block GetNeighborInDirection(Direction direction){
 		if (direction == Direction.North){
