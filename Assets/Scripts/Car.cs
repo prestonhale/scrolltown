@@ -64,7 +64,6 @@ public class Car : MonoBehaviour {
 		Vector3 rayStart = transform.position + raycastOffset;
 		int mask = ~(1 << 10);
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
-			Debug.DrawRay(rayStart, -Vector3.up * hit.distance, Color.yellow, 3f);
 			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
 			pubHit.Add(hit.transform.gameObject);
 			parentBlocks.Add(parentBlock);

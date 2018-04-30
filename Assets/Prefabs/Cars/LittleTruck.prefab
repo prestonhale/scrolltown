@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 33911392658085826}
   - component: {fileID: 65804607485457550}
   - component: {fileID: 23573396309936044}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 33862008265420880}
   - component: {fileID: 65334781338371420}
   - component: {fileID: 23651375820994622}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4644108198033282}
   - component: {fileID: 114730115309430336}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: LittleTruck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,4 +222,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1
-  direction: 0
+  parentBlock: {fileID: 0}
+  spawner: {fileID: 0}
+  ableToMove: 0
+  mustTurn: 0
+  heading: 0
+  pubNextBlock: {fileID: 0}
+  pubHit: []
+  parentBlocks: []

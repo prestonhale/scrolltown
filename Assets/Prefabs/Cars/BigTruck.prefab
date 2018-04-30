@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4101418993360114}
   - component: {fileID: 114635904320578040}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: BigTruck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38,7 +38,7 @@ GameObject:
   - component: {fileID: 33896549716382168}
   - component: {fileID: 65771736556427552}
   - component: {fileID: 23186226965158208}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 33335120644191568}
   - component: {fileID: 65892992980442910}
   - component: {fileID: 23303538491908542}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,4 +222,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1
-  direction: 0
+  parentBlock: {fileID: 0}
+  spawner: {fileID: 0}
+  ableToMove: 0
+  mustTurn: 0
+  heading: 0
+  pubNextBlock: {fileID: 0}
+  pubHit: []
+  parentBlocks: []

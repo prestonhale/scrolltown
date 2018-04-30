@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 33434640061538188}
   - component: {fileID: 65524104246690646}
   - component: {fileID: 23688374022511382}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 33843386046145934}
   - component: {fileID: 65523981256937766}
   - component: {fileID: 23625479933781348}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4077593364500784}
   - component: {fileID: 114045524922245422}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Limo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,5 +222,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 1
-  direction: 0
   parentBlock: {fileID: 0}
+  spawner: {fileID: 0}
+  ableToMove: 0
+  mustTurn: 0
+  heading: 0
+  pubNextBlock: {fileID: 0}
+  pubHit: []
+  parentBlocks: []

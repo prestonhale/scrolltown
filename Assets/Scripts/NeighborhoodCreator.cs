@@ -17,12 +17,6 @@ public class NeighborhoodShape {
 		left.parentShape = this;
 	}
 
-	public void CreateAll(){
-		center.CreateNeighborhood();
-		top.CreateNeighborhood();
-		left.CreateNeighborhood();
-	}
-
 	public Neighborhood GetNeighborhoodInDirection(int direction, Neighborhood neighborhood){
 		if (neighborhood == center){
 			if (direction == 3){  // West
@@ -84,6 +78,7 @@ public class NeighborhoodCreator : MonoBehaviour {
 	public void Update () {
 		// TODO: There's probably something better to check here
 		if (currentShape.center.centerPoint.x > camera.transform.position.x){
+		// if (false) {
 			if (mediumShape != null){
 				oldShape = mediumShape;
 			}
@@ -91,7 +86,6 @@ public class NeighborhoodCreator : MonoBehaviour {
 			Neighborhood centerOfShape = currentShape.center;
 			float spawnX = (centerOfShape.bottomLeft.x - totalOffset) + (centerOfShape.blockOffset/2);
 			float spawnZ = (centerOfShape.bottomLeft.z + totalOffset) + (centerOfShape.blockOffset/2);
-			// X and Z are the coords of the new BOTTOM LEFT!
 			currentShape = SpawnNeighborhoodShape(spawnX, spawnZ, mediumShape);
 			if (oldShape != null){
 				neighborhoods.Remove(oldShape.center.gameObject.GetComponent<Neighborhood>());
@@ -123,8 +117,6 @@ public class NeighborhoodCreator : MonoBehaviour {
 		top.transform.position = new Vector3(x, 0f, z + totalOffset);
 		left.transform.position = new Vector3(x - totalOffset, 0f, z);
 		
-		shape.CreateAll();
-
 		return shape;
 	}
 }
