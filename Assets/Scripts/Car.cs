@@ -15,11 +15,15 @@ public class Car : MonoBehaviour {
 
 	// Testing
 	public Block pubNextBlock;
+	public List<GameObject> pubHit;
+	public List<Block> parentBlocks;
 
 	private Vector3 raycastOffset;
 	private float timeSinceLastChecked = 0f;
 
-	public void Start(){
+	public void Awake(){
+		pubHit = new List<GameObject>();
+		parentBlocks = new List<Block>();
 		ableToMove = true;
 		mustTurn = false;
 	}
@@ -37,12 +41,12 @@ public class Car : MonoBehaviour {
 
 	private void SpecifiedUpdate(float elapsedTime){
 		float delta = speed * elapsedTime;
-		UpdateParentBlock(elapsedTime);
 		if (ableToMove){
 			Move(delta);
 		}
 		if (mustTurn)
 			TurnIfNecessary();
+		UpdateParentBlock(elapsedTime);
 	}
 
 	public void Move(float delta){
@@ -58,20 +62,18 @@ public class Car : MonoBehaviour {
 		RaycastHit hit;
 		Vector3 raycastOffset = new Vector3(0f, 1f, 0f);
 		Vector3 rayStart = transform.position + raycastOffset;
-		int mask = 1 << 8;
+		int mask = ~(1 << 10);
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
 			Debug.DrawRay(rayStart, -Vector3.up * hit.distance, Color.yellow, 3f);
 			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
-			if (!parentBlock){
-				return;
-			}
+			pubHit.Add(hit.transform.gameObject);
+			parentBlocks.Add(parentBlock);
 			CheckRoadIsEnding();
 		}
 	} 
 
 	private void CheckRoadIsEnding(){
 		Block nextBlock = parentBlock.GetNeighborInDirection(heading);
-		pubNextBlock = nextBlock;
 		Direction drivingSide = heading.GetLeft();
 		if (!nextBlock){
 			SetRoadEnding(false);
@@ -141,8 +143,8 @@ public class Car : MonoBehaviour {
 		SetRoadEnding(false);
 		float roadWidth = .5f;
 		float blockWidth = 10f;
-		// Right keeps on this blocks road
-		Vector3 offset = (heading.ToIntVector3() + heading.GetLeft().ToIntVector3())* ((blockWidth/2) - (roadWidth/2));
+		Vector3 topLeftIntVector = heading.ToIntVector3() + heading.GetLeft().ToIntVector3();
+		Vector3 offset = topLeftIntVector * ((blockWidth/2) - (roadWidth/2));
 		transform.position = parentBlock.transform.position + offset;
 		transform.Rotate(new Vector3(0f, 90f, 0f));
 		heading = heading.GetRight();
@@ -155,8 +157,8 @@ public class Car : MonoBehaviour {
 		// TODO: Dynamic
 		float roadWidth = .5f;
 		float blockWidth = 10f;
-		// Left is on other side of road
-		Vector3 offset = (heading.ToIntVector3() + heading.GetLeft().ToIntVector3()) * ((blockWidth/2) + (roadWidth/2));
+		Vector3 topLeftIntVector = heading.ToIntVector3() + heading.GetLeft().ToIntVector3();
+		Vector3 offset = topLeftIntVector * ((blockWidth/2) + (roadWidth/2));
 		transform.position = parentBlock.transform.position + offset;
 		transform.Rotate(new Vector3(0f, -90f, 0f));
 		heading = heading.GetLeft();

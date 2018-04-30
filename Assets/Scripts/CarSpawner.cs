@@ -43,8 +43,6 @@ public class CarSpawner : MonoBehaviour
                 continue;
             }
             GameObject carGameObject = SpawnCar(parentBlock, direction);
-            if (carGameObject)
-                cars.Add(carGameObject.GetComponent<Car>());
         }
     }
 
@@ -88,12 +86,13 @@ public class CarSpawner : MonoBehaviour
         Car car = carGameObject.GetComponent<Car>();
         car.spawner = this;
         car.heading = ((Direction)direction).GetOpposite();
+        cars.Add(car);
         return carGameObject;
     }
 
     private void SimulateAdvancement(){
         SpawnCarsForEdge(Direction.West);
-        SpawnCarsForEdge(Direction.East);
+        // SpawnCarsForEdge(Direction.East);
         foreach (Car car in cars)
         {
             car.SimulateFrames(120);  // 2 seconds at 60 fps
