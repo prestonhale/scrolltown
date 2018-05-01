@@ -12,6 +12,7 @@ public class Car : MonoBehaviour {
 	public bool ableToMove;
 	public bool mustTurn;
 	public Direction heading;
+	public float frontDistanceToCheck;
 
 	// Testing
 	public Block pubNextBlock;
@@ -26,6 +27,7 @@ public class Car : MonoBehaviour {
 		parentBlocks = new List<Block>();
 		ableToMove = true;
 		mustTurn = false;
+		frontDistanceToCheck = 2f;
 	}
 
 	public void Update () {
@@ -46,7 +48,12 @@ public class Car : MonoBehaviour {
 		}
 		if (mustTurn)
 			TurnIfNecessary();
+		timeSinceLastChecked += elapsedTime;
+		if (timeSinceLastChecked < 0.5f)
+			return;
 		UpdateParentBlock(elapsedTime);
+		CheckFront();
+		timeSinceLastChecked = 0.0f;
 	}
 
 	public void Move(float delta){
@@ -55,20 +62,29 @@ public class Car : MonoBehaviour {
 	}
 
 	private void UpdateParentBlock(float elapsedTime){
-		timeSinceLastChecked += elapsedTime;
-		if (timeSinceLastChecked < 1.0f)
-			return;
-		timeSinceLastChecked = 0.0f;
 		RaycastHit hit;
 		Vector3 raycastOffset = new Vector3(0f, 1f, 0f);
 		Vector3 rayStart = transform.position + raycastOffset;
 		int mask = ~(1 << 10);
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
 			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
-			pubHit.Add(hit.transform.gameObject);
 			parentBlocks.Add(parentBlock);
 			CheckRoadIsEnding();
 		}
+	} 
+	
+	private void CheckFront(){
+		RaycastHit hit;
+		Vector3 rayStart = transform.position + transform.right/2 + new Vector3(0f, .2f, 0f);
+		Debug.DrawRay(rayStart, transform.right * frontDistanceToCheck, Color.yellow, .5f);
+		if (Physics.Raycast(rayStart, transform.right, out hit, frontDistanceToCheck)){
+			pubHit.Add(hit.transform.gameObject);
+			if (hit.transform.gameObject.GetComponentInParent<Car>()){
+				ableToMove = false;
+				return;
+			}
+		}
+		ableToMove = true;
 	} 
 
 	private void CheckRoadIsEnding(){
