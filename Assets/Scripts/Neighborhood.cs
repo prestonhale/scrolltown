@@ -102,13 +102,14 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
+                GridCoord coord = new GridCoord(x, z);
                 if (UnityEngine.Random.value * 100 < residentialChance)
                 {
-                    CreateBlock(4, x, z, i++);
+                    CreateBlock(4, coord, i++);
                 }
                 else
                 {
-                    CreateBlock(1, x, z, i++);
+                    CreateBlock(1, coord, i++);
                 }
             }
         }
@@ -135,14 +136,15 @@ public class Neighborhood : MonoBehaviour
             {
                 for (int z = 0; z < height; z++)
                 {
-                    int urbanCount = GetSurroundingUrbanCount(x, z);
+                    GridCoord coord = new GridCoord(x, z);
+                    int urbanCount = GetSurroundingUrbanCount(coord);
                     if (urbanCount > requiredSmoothingNeigbors)
                     {
-                        ReplaceBlock(4, x, z);
+                        ReplaceBlock(4, coord);
                     }
                     else if (urbanCount < requiredSmoothingNeigbors)
                     {
-                        ReplaceBlock(1, x, z);
+                        ReplaceBlock(1, coord);
                     }
                 }
             }
@@ -155,7 +157,8 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                int index = GetIndex(x, z);
+                GridCoord coord = new GridCoord(x, z);
+                int index = GetIndex(coord);
                 Block block = blocks[index];
                 if (block.type != BlockType.forest)
                 {
@@ -165,31 +168,31 @@ public class Neighborhood : MonoBehaviour
                 // one in this forest clump, kill it
                 if (UnityEngine.Random.value * 100 <= mountainChance)
                 {
-                    ExtendMountain(x, z, 0);
+                    ExtendMountain(coord, 0);
                 }
             }
         }
     }
 
-    public void ExtendMountain(int x, int z, int mtnLength)
+    public void ExtendMountain(GridCoord coord, int mtnLength)
     {
         if (mtnLength >= maxMtnLength)
         {
             return;
         }
-        ReplaceBlock(2, x, z);
+        ReplaceBlock(2, coord);
         for (int i = 0; i < 4; i++)
         {
-            Block neighbor = GetBlockInDirection(i, x, z);
+            Block neighbor = GetBlockInDirection((Direction)i, coord);
             if (!neighbor)
             {
                 continue;
             }
             if (neighbor.type == BlockType.forest)
             {
-                GridCoord neighborCoords = IndexToCoord(GetIndexInDirection(i, x, z));
+                GridCoord neighborCoords = IndexToCoord(GetIndexInDirection(i, coord));
                 // TODO: Extend in both directions
-                ExtendMountain(neighborCoords.x, neighborCoords.z, mtnLength + 1);
+                ExtendMountain(coord, mtnLength + 1);
                 break;
             }
         }
@@ -201,7 +204,8 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                int index = GetIndex(x, z);
+                GridCoord coord = new GridCoord(x, z);
+                int index = GetIndex(coord);
                 Block block = blocks[index];
                 if (block.type != BlockType.residential)
                 {
@@ -209,17 +213,17 @@ public class Neighborhood : MonoBehaviour
                 }
                 BlockType[] urban = new BlockType[2] { BlockType.residential, BlockType.city };
                 // TODO: This will check tiles that are north or south in the NEXT col
-                Block northBlock = GetBlockInDirection(0, x, z);
-                Block eastBlock = GetBlockInDirection(1, x, z);
-                Block southBlock = GetBlockInDirection(2, x, z);
-                Block westBlock = GetBlockInDirection(3, x, z);
+                Block northBlock = GetBlockInDirection(Direction.North, coord);
+                Block eastBlock = GetBlockInDirection(Direction.East, coord);
+                Block southBlock = GetBlockInDirection(Direction.South, coord);
+                Block westBlock = GetBlockInDirection(Direction.West, coord);
                 bool northIsResidential = northBlock ? Array.IndexOf(urban, northBlock.type) > -1 : false;
                 bool eastIsResidential = eastBlock ? Array.IndexOf(urban, eastBlock.type) > -1 : false;
                 bool southIsResidential = southBlock ? Array.IndexOf(urban, southBlock.type) > -1 : false;
                 bool westIsResidential = westBlock ? Array.IndexOf(urban, westBlock.type) > -1 : false;
                 if (northIsResidential && eastIsResidential && southIsResidential && westIsResidential)
                 {
-                    ReplaceBlock(0, x, z);
+                    ReplaceBlock(0, coord);
                 }
             }
         }
@@ -233,14 +237,15 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                Block block = GetBlockAtCoords(x, z);
+                GridCoord coord = new GridCoord(x, z);
+                Block block = GetBlockAtCoords(coord);
                 bool northIsCity = block.north ? block.north.type == BlockType.city : false;
                 bool eastIsCity = block.east ? block.east.type == BlockType.city : false;
                 bool southIsCity = block.south ? block.south.type == BlockType.city : false;
                 bool westIsCity = block.west ? block.west.type == BlockType.city : false;
                 if (northIsCity && eastIsCity && southIsCity && westIsCity && UnityEngine.Random.value * 100 < parkChance)
                 {
-                    ReplaceBlock(3, x, z);
+                    ReplaceBlock(3, coord);
                 }
             }
         }
@@ -252,7 +257,8 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                int index = GetIndex(x, z);
+                GridCoord coord = new GridCoord(x, z);
+                int index = GetIndex(coord);
                 if (Array.IndexOf(new BlockType[2] { BlockType.residential, BlockType.city }, blocks[index].type) == -1)
                 {
                     continue;
@@ -261,10 +267,10 @@ public class Neighborhood : MonoBehaviour
                 bool citySeen = false;
                 BlockType[] urban = new BlockType[2] { BlockType.residential, BlockType.city };
 
-                Block northBlock = GetBlockInDirection(0, x, z);
-                Block eastBlock = GetBlockInDirection(1, x, z);
-                Block southBlock = GetBlockInDirection(2, x, z);
-                Block westBlock = GetBlockInDirection(3, x, z);
+                Block northBlock = GetBlockInDirection(Direction.North, coord);
+                Block eastBlock = GetBlockInDirection(Direction.East, coord);
+                Block southBlock = GetBlockInDirection(Direction.South, coord);
+                Block westBlock = GetBlockInDirection(Direction.West, coord);
 
                 bool northIsResidential = northBlock ? Array.IndexOf(urban, northBlock.type) > -1 : false;
                 bool eastIsResidential = eastBlock ? Array.IndexOf(urban, eastBlock.type) > -1 : false;
@@ -288,7 +294,7 @@ public class Neighborhood : MonoBehaviour
                         && residentialSeen && citySeen
                         && UnityEngine.Random.value * 100 < shoppingChance)
                 {
-                    ReplaceBlock(5, x, z);
+                    ReplaceBlock(5, coord);
                 }
             }
         }
@@ -303,9 +309,9 @@ public class Neighborhood : MonoBehaviour
     }
 
 
-    public int GetIndexInDirection(int direction, int x, int z)
+    public int GetIndexInDirection(int direction, GridCoord coord)
     {
-        int curIndex = GetIndex(x, z);
+        int curIndex = GetIndex(coord);
         int newIndex;
         if (direction == 0)
         {
@@ -326,20 +332,20 @@ public class Neighborhood : MonoBehaviour
         return newIndex;
     }
 
-    public Block GetBlockInDirection(int direction, int x, int z)
+    public Block GetBlockInDirection(Direction direction, GridCoord coord)
     {
         int newX = 0;
         int newZ = 0;
-        if (direction == 0) {newX = x; newZ = z + 1;}
-        else if (direction == 1) {newX = x + 1; newZ = z;}
-        else if (direction == 2) {newX = x; newZ = z - 1;}
-        else if (direction == 3) {newX = x - 1; newZ = z;}
-        return GetBlockAtCoords(newX, newZ);
+        if (direction == Direction.North) {newX = coord.x; newZ = coord.z + 1;}
+        else if (direction == Direction.East) {newX = coord.x + 1; newZ = coord.z;}
+        else if (direction == Direction.South) {newX = coord.x; newZ = coord.z - 1;}
+        else if (direction == Direction.West) {newX = coord.x - 1; newZ = coord.z;}
+        return GetBlockAtCoords(coord);
     }
 
-    public int GetIndex(int x, int z)
+    public int GetIndex(GridCoord coord)
     {
-        return (x * height) + z;
+        return (coord.x * height) + coord.z;
     }
 
     public void DestroyNeighborhood()
@@ -356,7 +362,7 @@ public class Neighborhood : MonoBehaviour
         {
             int index = Array.IndexOf(blocks, block);
             GridCoord coords = IndexToCoord(index);
-            CalculateNeighbors(coords.x, coords.z);
+            CalculateNeighbors(coords);
         }
     }
 
@@ -366,17 +372,17 @@ public class Neighborhood : MonoBehaviour
         return false;
     }
 
-    public void CalculateNeighbors(int x, int z)
+    public void CalculateNeighbors(GridCoord coord)
     {
-        Block block = GetBlockAtCoords(x, z);
+        Block block = GetBlockAtCoords(coord);
         if (!block)
         {
             return;
         }
-        Block northBlock = GetBlockInDirection(0, x, z);
-        Block eastBlock = GetBlockInDirection(1, x, z);
-        Block southBlock = GetBlockInDirection(2, x, z);
-        Block westBlock = GetBlockInDirection(3, x, z);
+        Block northBlock = GetBlockInDirection(Direction.North, coord);
+        Block eastBlock = GetBlockInDirection(Direction.East, coord);
+        Block southBlock = GetBlockInDirection(Direction.South, coord);
+        Block westBlock = GetBlockInDirection(Direction.West, coord);
 
         block.north = northBlock;
         block.east = eastBlock;
@@ -384,31 +390,31 @@ public class Neighborhood : MonoBehaviour
         block.west = westBlock;
     }
 
-    public Block GetBlockAtCoords(int x, int z)
+    public Block GetBlockAtCoords(GridCoord coord)
     {
         if (parentShape != null){
-            if (x < 0){
+            if (coord.x < 0){
                 Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(3, this);
                 if (!borderingNeighborhood) return null;
-                return borderingNeighborhood.GetBlockAtCoords(width - 1, z);
+                return borderingNeighborhood.GetBlockAtCoords(new GridCoord(width - 1, coord.z));
             }
-            if (z < 0){
+            if (coord.z < 0){
                 Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(2, this);
                 if (!borderingNeighborhood) return null;
-                return borderingNeighborhood.GetBlockAtCoords(x, height -1);
+                return borderingNeighborhood.GetBlockAtCoords(new GridCoord(coord.x, height -1));
             }
-            if (x > width - 1){
+            if (coord.x > width - 1){
                 Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(1, this);
                 if (!borderingNeighborhood) return null;
-                return borderingNeighborhood.GetBlockAtCoords(0, z);
+                return borderingNeighborhood.GetBlockAtCoords(new GridCoord(0, coord.z));
             }
-            if (z > height - 1){
+            if (coord.z > height - 1){
                 Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(0, this);
                 if (!borderingNeighborhood) return null;
-                return borderingNeighborhood.GetBlockAtCoords(x, 0);
+                return borderingNeighborhood.GetBlockAtCoords(new GridCoord(coord.x, 0));
             }
         }
-        int index = GetIndex(x, z);
+        int index = GetIndex(coord);
         if (ContainsIndex(index)){
             Block block = blocks[index];
             return block;
@@ -416,47 +422,47 @@ public class Neighborhood : MonoBehaviour
         return null;
     }
 
-    public void CreateBlock(int blockIndex, int x, int z, int i)
+    public void CreateBlock(int blockIndex, GridCoord coord, int i)
     {
-        Vector3 newPosition = new Vector3(x * blockOffset, 0f, z * blockOffset);
+        Vector3 newPosition = new Vector3(coord.x * blockOffset, 0f, coord.z * blockOffset);
         Block blockPrefab = blockPrefabs[blockIndex];
         Block block = blocks[i] = Instantiate<Block>(blockPrefab);
         block.transform.SetParent(transform, false);
         block.transform.localPosition = newPosition;
         block.neighborhood = this;
-        block.index = GetIndex(x, z);
+        block.index = GetIndex(coord);
     }
 
-    public void ReplaceBlock(int blockIndex, int x, int z)
+    public void ReplaceBlock(int blockIndex, GridCoord coord)
     {
-        int index = GetIndex(x, z);
+        int index = GetIndex(coord);
         Block oldBlock = blocks[index];
         Vector3 oldBlockPosition = oldBlock.transform.position;
-        CreateBlock(blockIndex, x, z, index);
+        CreateBlock(blockIndex, coord, index);
 
         Destroy(oldBlock.gameObject);
 
-        CalculateNeighbors(x, z);
-        CalculateNeighbors(x, z + 1);
-        CalculateNeighbors(x + 1, z);
-        CalculateNeighbors(x, z - 1);
-        CalculateNeighbors(x - 1, z);
+        CalculateNeighbors(coord);
+        CalculateNeighbors(new GridCoord(coord.x, coord.z + 1));
+        CalculateNeighbors(new GridCoord(coord.x + 1, coord.z));
+        CalculateNeighbors(new GridCoord(coord.x, coord.z - 1));
+        CalculateNeighbors(new GridCoord(coord.x - 1, coord.z));
     }
 
-    public int GetSurroundingUrbanCount(int x, int z)
+    public int GetSurroundingUrbanCount(GridCoord coord)
     {
         // The minus and plus ones in the loop here allow us to search
         // in a 3x3 sqr around the selected tile
         int urbanCount = 0;
         BlockType[] rural = new BlockType[2] { BlockType.forest, BlockType.mountain };
-        for (int neighborX = x - 1; neighborX <= x + 1; neighborX++)
+        for (int neighborX = coord.x - 1; neighborX <= coord.x + 1; neighborX++)
         {
-            for (int neighborZ = z - 1; neighborZ <= z + 1; neighborZ++)
+            for (int neighborZ = coord.z - 1; neighborZ <= coord.z + 1; neighborZ++)
             {
-                if (neighborX != x || neighborX != z)
+                if (neighborX != coord.x || neighborX != coord.z)
                 {
                     // Neighbor at coords is NOT rural, or is an edge
-                    Block neighbor = GetBlockAtCoords(neighborX, neighborZ);
+                    Block neighbor = GetBlockAtCoords(new GridCoord(neighborX, neighborZ));
                     if (!neighbor)
                     {
                         urbanCount += 1;
@@ -479,7 +485,8 @@ public class Neighborhood : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                Block thisBlock = GetBlockAtCoords(x, z);
+                GridCoord coord = new GridCoord(x, z);
+                Block thisBlock = GetBlockAtCoords(coord);
                 // Residential blocks always get 4 edge roads
                 if (Array.IndexOf(rural, thisBlock.type) == -1){
                     foreach (Direction direction in Enum.GetValues(typeof(Direction))){
@@ -488,7 +495,7 @@ public class Neighborhood : MonoBehaviour
                 } else {  // Rural blocks only get edge roads if their neighbors are residential
                     for (int i = 0; i < 4; i++)
                     {
-                        Block neighbor = GetBlockInDirection(i, x, z);
+                        Block neighbor = GetBlockInDirection((Direction)i, coord);
                         if (!neighbor) continue;
                         if (Array.IndexOf(rural, neighbor.type) == -1)
                         {
@@ -509,7 +516,8 @@ public class Neighborhood : MonoBehaviour
         // add a road corner
         for (int x = 0; x < width; x++){
             for (int z = 0; z < height; z++){
-                Block thisBlock = GetBlockAtCoords(x, z);
+                GridCoord coord = new GridCoord(x, z);
+                Block thisBlock = GetBlockAtCoords(coord);
                 foreach (Direction direction in Enum.GetValues(typeof(Direction))){
                     Direction left = direction.GetLeft();
                     Block forwardNeighbor = thisBlock.GetNeighborInDirection(direction);
@@ -546,25 +554,25 @@ public class Neighborhood : MonoBehaviour
         if (direction == Direction.North){
             edgeBlocks = new Block[width];
             for (int i = 0; i < width; i++){
-                edgeBlocks[i] = GetBlockAtCoords(i, height-1);
+                edgeBlocks[i] = GetBlockAtCoords(new GridCoord(i, height-1));
             }
         }
         else if (direction == Direction.East){
             edgeBlocks = new Block[height];
             for (int i = 0; i < height; i++){
-                edgeBlocks[i] = GetBlockAtCoords(width-1, i);
+                edgeBlocks[i] = GetBlockAtCoords(new GridCoord(width-1, i));
             }
         }
         else if (direction == Direction.South){
             edgeBlocks = new Block[width];
             for (int i = 0; i < width; i++){
-                edgeBlocks[i] = GetBlockAtCoords(i, 0);
+                edgeBlocks[i] = GetBlockAtCoords(new GridCoord(i, 0));
             }
         }
         else if (direction == Direction.West){
             edgeBlocks = new Block[height];
             for (int i = 0; i < height; i++){
-                edgeBlocks[i] = GetBlockAtCoords(0, i);
+                edgeBlocks[i] = GetBlockAtCoords(new GridCoord(0, i));
             }
         }
         return edgeBlocks;

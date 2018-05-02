@@ -15,17 +15,11 @@ public class Car : MonoBehaviour {
 	public float frontDistanceToCheck;
 
 	// Testing
-	public Block pubNextBlock;
-	public List<GameObject> pubHit;
-	public List<Block> parentBlocks;
-
 	private Vector3 raycastOffset;
 	private float timeSinceLastChecked = 0f;
 	private MeshRenderer meshRenderer;
 
 	public void Awake(){
-		pubHit = new List<GameObject>();
-		parentBlocks = new List<Block>();
 		ableToMove = true;
 		mustTurn = false;
 		frontDistanceToCheck = 2f;
@@ -72,7 +66,6 @@ public class Car : MonoBehaviour {
 		int mask = ~(1 << 10);
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
 			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
-			parentBlocks.Add(parentBlock);
 			CheckRoadIsEnding();
 		}
 	} 
@@ -80,9 +73,7 @@ public class Car : MonoBehaviour {
 	private void CheckFront(){
 		RaycastHit hit;
 		Vector3 rayStart = transform.position + transform.right/2 + new Vector3(0f, .2f, 0f);
-		// Debug.DrawRay(rayStart, transform.right * frontDistanceToCheck, Color.yellow, .5f);
 		if (Physics.Raycast(rayStart, transform.right, out hit, frontDistanceToCheck)){
-			pubHit.Add(hit.transform.gameObject);
 			if (hit.transform.gameObject.GetComponentInParent<Car>()){
 				ableToMove = false;
 				return;
