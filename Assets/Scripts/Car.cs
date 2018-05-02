@@ -21,6 +21,7 @@ public class Car : MonoBehaviour {
 
 	private Vector3 raycastOffset;
 	private float timeSinceLastChecked = 0f;
+	private MeshRenderer meshRenderer;
 
 	public void Awake(){
 		pubHit = new List<GameObject>();
@@ -28,10 +29,13 @@ public class Car : MonoBehaviour {
 		ableToMove = true;
 		mustTurn = false;
 		frontDistanceToCheck = 2f;
+		meshRenderer = GetComponentInChildren<MeshRenderer>();
 	}
 
 	public void Update () {
-		SpecifiedUpdate(Time.deltaTime);
+		if (IsVisible()){
+			SpecifiedUpdate(Time.deltaTime);
+		}
 	}
 	
 	public void SimulateFrames(int frames){
@@ -76,7 +80,7 @@ public class Car : MonoBehaviour {
 	private void CheckFront(){
 		RaycastHit hit;
 		Vector3 rayStart = transform.position + transform.right/2 + new Vector3(0f, .2f, 0f);
-		Debug.DrawRay(rayStart, transform.right * frontDistanceToCheck, Color.yellow, .5f);
+		// Debug.DrawRay(rayStart, transform.right * frontDistanceToCheck, Color.yellow, .5f);
 		if (Physics.Raycast(rayStart, transform.right, out hit, frontDistanceToCheck)){
 			pubHit.Add(hit.transform.gameObject);
 			if (hit.transform.gameObject.GetComponentInParent<Car>()){
@@ -193,6 +197,11 @@ public class Car : MonoBehaviour {
         foreach(MeshRenderer renderer in renderers){
 			renderer.material = material;
 		}
+	}
+
+	private bool IsVisible(){
+		Plane[] planes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
+		return GeometryUtility.TestPlanesAABB(planes, meshRenderer.bounds);
 	}
 		
 }
