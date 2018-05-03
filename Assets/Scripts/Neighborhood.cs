@@ -82,9 +82,7 @@ public class Neighborhood : MonoBehaviour
 
 
     public void Move(){
-        if (!UnityEditor.EditorApplication.isPaused){
-            transform.Translate(moveDirection * moveSpeed);
-        }
+        transform.Translate(moveDirection * moveSpeed);
     }
 
     public void CreateNeighborhood()

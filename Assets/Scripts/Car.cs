@@ -13,13 +13,15 @@ public class Car : MonoBehaviour {
 	public bool mustTurn;
 	public Direction heading;
 	public float frontDistanceToCheck;
-
-	// Testing
 	private Vector3 raycastOffset;
 	private float timeSinceLastChecked = 0f;
 	private MeshRenderer meshRenderer;
 
+	// Testing
+	public bool Debug;
+
 	public void Awake(){
+		Debug = false;
 		ableToMove = true;
 		mustTurn = false;
 		frontDistanceToCheck = 2f;
@@ -159,7 +161,9 @@ public class Car : MonoBehaviour {
 		transform.Rotate(new Vector3(0f, 90f, 0f));
 		heading = heading.GetRight();
 
-		ChangeColor(spawner.rightTurnColor);
+		if (Debug){
+			ChangeColor(spawner.rightTurnColor);
+		}
 	}
 	
 	public void TurnLeft(){
@@ -173,12 +177,14 @@ public class Car : MonoBehaviour {
 		transform.Rotate(new Vector3(0f, -90f, 0f));
 		heading = heading.GetLeft();
 
-		ChangeColor(spawner.leftTurnColor);
+		if(Debug){
+			ChangeColor(spawner.leftTurnColor);
+		}
 	}
 
 	private void SetRoadEnding(bool roadEnding){
 		mustTurn = roadEnding;
-		if (roadEnding){
+		if (roadEnding && Debug){
 			ChangeColor(spawner.carWarningMaterial);
 		}
 	}

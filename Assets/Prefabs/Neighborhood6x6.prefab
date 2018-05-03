@@ -111,7 +111,11 @@ MonoBehaviour:
   - {fileID: 1331457764742562, guid: e51344b53ed444d64b4468a0afe77c4e, type: 2}
   - {fileID: 1458499021264744, guid: 74f638d44955245239f77be26801e40f, type: 2}
   - {fileID: 1864187505440984, guid: 19502f18b289445c09aa1282ead06279, type: 2}
+  - {fileID: 1193744410425812, guid: 73db439348c024280b134a7310d5d34c, type: 2}
   carColors:
+  - {fileID: 2100000, guid: fa51c88934d074b208e7a6b97fdd9fd8, type: 2}
+  - {fileID: 2100000, guid: fa51c88934d074b208e7a6b97fdd9fd8, type: 2}
+  - {fileID: 2100000, guid: fa51c88934d074b208e7a6b97fdd9fd8, type: 2}
   - {fileID: 2100000, guid: fa51c88934d074b208e7a6b97fdd9fd8, type: 2}
   carOffset: 0.25
   simulationSteps: 10

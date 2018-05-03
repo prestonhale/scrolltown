@@ -60,19 +60,19 @@ public class CarSpawner : MonoBehaviour
         Vector3 carPosition = Vector3.zero;
         if (direction == Direction.North)
         {
-            carPosition = new Vector3(blockRadius - carOffset, 0, blockRadius);
+            carPosition = new Vector3(blockRadius - carOffset, 0.05f, blockRadius);
         }
         else if (direction == Direction.East)
         {
-            carPosition = new Vector3(blockRadius, 0, -blockRadius + carOffset);
+            carPosition = new Vector3(blockRadius, 0.05f, -blockRadius + carOffset);
         }
         else if (direction == Direction.South)
         {
-            carPosition = new Vector3(-blockRadius + carOffset, 0, -blockRadius);
+            carPosition = new Vector3(-blockRadius + carOffset, 0.05f, -blockRadius);
         }
         else if (direction == Direction.West)
         {
-            carPosition = new Vector3(-blockRadius, 0, blockRadius - carOffset);
+            carPosition = new Vector3(-blockRadius, 0.05f, blockRadius - carOffset);
         } else {
         }
         Quaternion rotation = Quaternion.Euler(0f, 90f * ((int)direction.GetOpposite() - 1), 0f);
