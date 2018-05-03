@@ -81,15 +81,6 @@ public class Neighborhood : MonoBehaviour
     }
 
 
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            DestroyNeighborhood();
-            CreateNeighborhood();
-        }
-    }
-
     public void Move(){
         if (!UnityEditor.EditorApplication.isPaused){
             transform.Translate(moveDirection * moveSpeed);
@@ -340,7 +331,7 @@ public class Neighborhood : MonoBehaviour
         else if (direction == Direction.East) {newX = coord.x + 1; newZ = coord.z;}
         else if (direction == Direction.South) {newX = coord.x; newZ = coord.z - 1;}
         else if (direction == Direction.West) {newX = coord.x - 1; newZ = coord.z;}
-        return GetBlockAtCoords(coord);
+        return GetBlockAtCoords(new GridCoord(newX, newZ));
     }
 
     public int GetIndex(GridCoord coord)
