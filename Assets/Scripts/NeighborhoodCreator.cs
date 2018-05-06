@@ -7,6 +7,7 @@ public class NeighborhoodShape {
 	public Neighborhood top;
 	public Neighborhood left;
 	public NeighborhoodShape previousShape;
+	public NeighborhoodShape nextShape;
 
 	public NeighborhoodShape(Neighborhood center, Neighborhood top, Neighborhood left){
 		this.center = center;
@@ -16,35 +17,48 @@ public class NeighborhoodShape {
 		this.left = left;
 		left.parentShape = this;
 	}
+	
+	public void Build(){ 
+		// TODO: Center is failing to capture its neighbors correctly
+		center.Build();
+		top.Build();
+		left.Build();
+	}
 
-	public Neighborhood GetNeighborhoodInDirection(int direction, Neighborhood neighborhood){
+	public Neighborhood GetNeighborhoodInDirection(Direction direction, Neighborhood neighborhood){
 		if (neighborhood == center){
-			if (direction == 3){  // West
+			if (direction == Direction.West){
 				return left;
 			}
-			if (direction == 2){  // South
+			if (direction == Direction.South){
 				if (previousShape != null){
 					return previousShape.left;
 				}
 			}
-			if (direction == 1){  // East
+			if (direction == Direction.East){
 				if (previousShape != null){
 					return previousShape.top;
 				}
 			}
-			else if (direction == 0){  // North
+			else if (direction == Direction.North){
 				return top;
 			}
 			return null;
 		}
 		else if (neighborhood == top){
-			if (direction == 2){  // South
+			if (direction == Direction.South){
 				return center;
+			}
+			else if (direction == Direction.West){
+				if (nextShape != null) return nextShape.center;
 			}
 			return null;
 		}
 		else if (neighborhood == left){
-			if (direction == 1){  // East
+			if (direction == Direction.North){
+				if (nextShape != null) return nextShape.center;
+			}
+			if (direction == Direction.East){
 				return center;
 			}
 		}
@@ -112,11 +126,14 @@ public class NeighborhoodCreator : MonoBehaviour {
 
 		NeighborhoodShape shape = new NeighborhoodShape(center, top, left);
 		shape.previousShape = prevShape;
+		if (prevShape != null) prevShape.nextShape = shape;
 		
 		center.transform.position = new Vector3(x, 0f, z);
 		top.transform.position = new Vector3(x, 0f, z + totalOffset);
 		left.transform.position = new Vector3(x - totalOffset, 0f, z);
 		
+		shape.Build();
+
 		return shape;
 	}
 }

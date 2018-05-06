@@ -27,21 +27,54 @@ public static class BlockTypes {
 }
 
 
-// TODO: Make generation of these programmtic rather than prefab based
 public class Block : MonoBehaviour {
 	public BlockType type;
 	public Color color;
 
 	public bool useColor;
+	public GridCoord coord;
 	public int index;
-	public Block north;
-	public Block east;
-	public Block south;
-	public Block west;
 	public GameObject basePlane;
 	public Neighborhood neighborhood;
     public GameObject edgeRoadPrefab;
 	public GameObject[] edgeRoads = new GameObject[4];
+
+	[SerializeField]
+	private Block _north;
+	[SerializeField]
+	private Block _east;
+	[SerializeField]
+	private Block _south;
+	[SerializeField]
+	private Block _west;
+
+	public Block north {
+		get {
+			_north = neighborhood.GetBlockInDirection(Direction.North, coord); 
+			return _north;
+		}
+	} 
+
+	public Block east {
+		get {
+			_east = neighborhood.GetBlockInDirection(Direction.East, coord);
+			return _east;
+		}
+	}
+ 
+	public Block south {
+		get {
+			_south = neighborhood.GetBlockInDirection(Direction.South, coord);
+			return _south;
+		}
+	} 
+
+	public Block west {
+		get {
+			_west = neighborhood.GetBlockInDirection(Direction.West, coord);
+			return _west;
+		}
+	} 
 
 	public void Awake(){
 		if (useColor){

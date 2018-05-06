@@ -16,8 +16,8 @@ public class CarSpawner : MonoBehaviour
 	public Material carWarningMaterial;
 	public Material rightTurnColor;
 	public Material leftTurnColor;
+    public bool Debug;
 
-    // Private
     private Neighborhood neighborhood;
     private List<Car> cars = new List<Car>();
 
@@ -86,6 +86,7 @@ public class CarSpawner : MonoBehaviour
         Car car = carGameObject.GetComponent<Car>();
         car.spawner = this;
         car.heading = ((Direction)direction).GetOpposite();
+        car.Debug = Debug;
         cars.Add(car);
         return carGameObject;
     }

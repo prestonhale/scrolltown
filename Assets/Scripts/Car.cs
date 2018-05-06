@@ -29,7 +29,7 @@ public class Car : MonoBehaviour {
 	}
 
 	public void Update () {
-		if (IsVisible()){
+		if (IsVisible() || Debug){
 			SpecifiedUpdate(Time.deltaTime);
 		}
 	}

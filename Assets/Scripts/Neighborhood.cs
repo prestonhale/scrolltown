@@ -76,7 +76,7 @@ public class Neighborhood : MonoBehaviour
         radius = height / 2 * blockOffset;
     }
 
-    public void Start(){
+    public void Build(){
         CreateNeighborhood();
     }
 
@@ -103,7 +103,7 @@ public class Neighborhood : MonoBehaviour
             }
         }
         IterativelySmooth(smoothCount);
-        CalculateAllNeighbors();
+        // CalculateAllNeighbors();
 
         LayMountainRanges();
         AttemptGrowCity();
@@ -345,60 +345,32 @@ public class Neighborhood : MonoBehaviour
         }
     }
 
-    public void CalculateAllNeighbors()
-    {
-        foreach (Block block in blocks)
-        {
-            int index = Array.IndexOf(blocks, block);
-            GridCoord coords = IndexToCoord(index);
-            CalculateNeighbors(coords);
-        }
-    }
-
     public bool ContainsIndex(int index){
         if (index >= 0 && index < blocks.Length)
             return true;
         return false;
     }
 
-    public void CalculateNeighbors(GridCoord coord)
-    {
-        Block block = GetBlockAtCoords(coord);
-        if (!block)
-        {
-            return;
-        }
-        Block northBlock = GetBlockInDirection(Direction.North, coord);
-        Block eastBlock = GetBlockInDirection(Direction.East, coord);
-        Block southBlock = GetBlockInDirection(Direction.South, coord);
-        Block westBlock = GetBlockInDirection(Direction.West, coord);
-
-        block.north = northBlock;
-        block.east = eastBlock;
-        block.south = southBlock;
-        block.west = westBlock;
-    }
-
     public Block GetBlockAtCoords(GridCoord coord)
     {
         if (parentShape != null){
             if (coord.x < 0){
-                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(3, this);
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(Direction.West, this);
                 if (!borderingNeighborhood) return null;
                 return borderingNeighborhood.GetBlockAtCoords(new GridCoord(width - 1, coord.z));
             }
             if (coord.z < 0){
-                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(2, this);
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(Direction.South, this);
                 if (!borderingNeighborhood) return null;
                 return borderingNeighborhood.GetBlockAtCoords(new GridCoord(coord.x, height -1));
             }
             if (coord.x > width - 1){
-                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(1, this);
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(Direction.East, this);
                 if (!borderingNeighborhood) return null;
                 return borderingNeighborhood.GetBlockAtCoords(new GridCoord(0, coord.z));
             }
             if (coord.z > height - 1){
-                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(0, this);
+                Neighborhood borderingNeighborhood = parentShape.GetNeighborhoodInDirection(Direction.North, this);
                 if (!borderingNeighborhood) return null;
                 return borderingNeighborhood.GetBlockAtCoords(new GridCoord(coord.x, 0));
             }
@@ -407,8 +379,9 @@ public class Neighborhood : MonoBehaviour
         if (ContainsIndex(index)){
             Block block = blocks[index];
             return block;
+        } else {
+            throw new Exception("Coordinate not inside known neighborhoods.");
         }
-        return null;
     }
 
     public void CreateBlock(int blockIndex, GridCoord coord, int i)
@@ -419,6 +392,7 @@ public class Neighborhood : MonoBehaviour
         block.transform.SetParent(transform, false);
         block.transform.localPosition = newPosition;
         block.neighborhood = this;
+        block.coord = coord;
         block.index = GetIndex(coord);
     }
 
@@ -431,11 +405,6 @@ public class Neighborhood : MonoBehaviour
 
         Destroy(oldBlock.gameObject);
 
-        CalculateNeighbors(coord);
-        CalculateNeighbors(new GridCoord(coord.x, coord.z + 1));
-        CalculateNeighbors(new GridCoord(coord.x + 1, coord.z));
-        CalculateNeighbors(new GridCoord(coord.x, coord.z - 1));
-        CalculateNeighbors(new GridCoord(coord.x - 1, coord.z));
     }
 
     public int GetSurroundingUrbanCount(GridCoord coord)

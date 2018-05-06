@@ -124,6 +124,7 @@ MonoBehaviour:
   carWarningMaterial: {fileID: 2100000, guid: 842ef57e1c131462b829a9eb9bab5697, type: 2}
   rightTurnColor: {fileID: 2100000, guid: 1b754c4feda7d41c5b4d3866ef7ae089, type: 2}
   leftTurnColor: {fileID: 2100000, guid: 014176374a2e243b3bb49dc21941075b, type: 2}
+  Debug: 1
 --- !u!114 &114773899167161070
 MonoBehaviour:
   m_ObjectHideFlags: 1
