@@ -33,6 +33,14 @@ public class CarSpawner : MonoBehaviour
         }
     }
 
+    public void AddCar(Car car){
+        cars.Add(car);
+    }
+
+    public void RemoveCar(Car car){
+        cars.Remove(car);
+    }
+
     private void SpawnCarsForEdge(Direction direction)
     {
         Block[] edgeBlocks = neighborhood.GetEdgeBlocks(direction);
@@ -93,14 +101,14 @@ public class CarSpawner : MonoBehaviour
 
     private void SimulateAdvancement(){
         SpawnCarsForEdge(Direction.West);
-        // SpawnCarsForEdge(Direction.East);
-        foreach (Car car in cars)
+        SpawnCarsForEdge(Direction.East);
+        foreach (Car car in cars.ToArray()) // `cars` may be modified during loop
         {
             car.SimulateFrames(120);  // 2 seconds at 60 fps
         }
         SpawnCarsForEdge(Direction.North);
         SpawnCarsForEdge(Direction.South);
-        foreach (Car car in cars)
+        foreach (Car car in cars)  // `cars` may be modified during loop
         {
             car.SimulateFrames(120);  // 2 seconds at 60 fps
         }

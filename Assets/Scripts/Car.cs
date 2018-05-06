@@ -62,12 +62,17 @@ public class Car : MonoBehaviour {
 	}
 
 	private void UpdateParentBlock(float elapsedTime){
+		Block oldParentBlock = parentBlock;
 		RaycastHit hit;
 		Vector3 raycastOffset = new Vector3(0f, 1f, 0f);
 		Vector3 rayStart = transform.position + raycastOffset;
 		int mask = ~(1 << 10);
 		if (Physics.Raycast(rayStart, -Vector3.up, out hit, Mathf.Infinity, mask)){
 			parentBlock = hit.transform.gameObject.GetComponentInParent<Block>();
+			if (oldParentBlock && parentBlock.neighborhood != oldParentBlock.neighborhood){
+				oldParentBlock.neighborhood.GetComponent<CarSpawner>().RemoveCar(this);
+				parentBlock.neighborhood.GetComponent<CarSpawner>().AddCar(this);
+			}
 			CheckRoadIsEnding();
 		}
 	} 
